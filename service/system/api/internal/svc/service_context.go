@@ -11,6 +11,7 @@ import (
 	"github.com/jiangbyte/light-gozero/common/pwdcipher"
 	"github.com/jiangbyte/light-gozero/common/rbac"
 	"github.com/jiangbyte/light-gozero/common/session"
+	"github.com/jiangbyte/light-gozero/common/storage"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/config"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/middleware"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model"
@@ -36,6 +37,7 @@ type ServiceContext struct {
 	PwdCipher    *pwdcipher.Cipher
 	RbacGuard    *rbac.Guard
 	Repo         *model.Repo
+	FileStore    storage.Store
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -128,6 +130,20 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		limit.NewPeriodLimit(period, pkQ, rdb, "rl:pubkey:"),
 	)
 
+	// 5. 对象存储（local / s3），供后续 file 模块注入
+	storeCfg := c.Storage
+	if storeCfg.Provider == "" {
+		storeCfg.Provider = storage.ProviderLocal
+	}
+	if storeCfg.Provider == storage.ProviderLocal && storeCfg.Local.Root == "" {
+		storeCfg.Local.Root = "./data/storage"
+	}
+	fileStore, err := storage.New(storeCfg)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Storage.Provider=%s AccessMode=%s\n", fileStore.Provider(), fileStore.AccessMode())
+
 	return &ServiceContext{
 		Config:       c,
 		Auth:         authMw.Handle,
@@ -140,5 +156,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		PwdCipher:    pwdc,
 		RbacGuard:    guard,
 		Repo:         repo,
+		FileStore:    fileStore,
 	}
 }

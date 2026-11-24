@@ -3,6 +3,94 @@
 
 package types
 
+type FileHeadReq struct {
+	Key string `form:"key"`
+}
+
+type FileHeadResp struct {
+	Key          string `json:"key"`
+	Size         string `json:"size"`
+	MerkleSha256 string `json:"merkle_sha256"`
+	ChunkCount   string `json:"chunk_count"`
+	PublicUrl    string `json:"public_url,optional"`
+}
+
+type FilePutPartResp struct {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size"`
+	Sha256     string `json:"sha256"`
+}
+
+type FileUploadAbortReq struct {
+	Key      string `json:"key"`
+	UploadId string `json:"upload_id"`
+}
+
+type FileUploadCompletePart struct {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size,optional"`
+	Sha256     string `json:"sha256,optional"`
+	Etag       string `json:"etag,optional"`
+}
+
+type FileUploadCompleteReq struct {
+	Key          string                   `json:"key"`
+	UploadId     string                   `json:"upload_id"`
+	MerkleSha256 string                   `json:"merkle_sha256,optional"`
+	Parts        []FileUploadCompletePart `json:"parts,optional"`
+}
+
+type FileUploadCompleteResp struct {
+	Key          string `json:"key"`
+	Size         string `json:"size"`
+	MerkleSha256 string `json:"merkle_sha256"`
+	ChunkCount   string `json:"chunk_count"`
+	PublicUrl    string `json:"public_url,optional"`
+}
+
+type FileUploadInitReq struct {
+	Key         string `json:"key"`
+	ContentType string `json:"content_type,optional"`
+}
+
+type FileUploadInitResp struct {
+	UploadId   string `json:"upload_id"`
+	Provider   string `json:"provider"`
+	AccessMode string `json:"access_mode"`
+	ChunkSize  string `json:"chunk_size"`
+	MaxParts   string `json:"max_parts"`
+	PublicUrl  string `json:"public_url,optional"`
+}
+
+type FileUploadPartItem struct {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size"`
+	Sha256     string `json:"sha256"`
+}
+
+type FileUploadPartUrlReq struct {
+	Key         string `json:"key"`
+	UploadId    string `json:"upload_id"`
+	PartNumber  string `json:"part_number"`
+	Size        string `json:"size,optional"`
+	ChunkSha256 string `json:"chunk_sha256,optional"`
+}
+
+type FileUploadPartUrlResp struct {
+	UploadUrl string            `json:"upload_url"`
+	Headers   map[string]string `json:"headers,optional"`
+	ExpiresAt string            `json:"expires_at"`
+}
+
+type FileUploadPartsReq struct {
+	Key      string `form:"key"`
+	UploadId string `form:"upload_id"`
+}
+
+type FileUploadPartsResp struct {
+	Items []FileUploadPartItem `json:"items"`
+}
+
 type HelloReq struct {
 	UserId string `form:"user_id,optional"`
 }

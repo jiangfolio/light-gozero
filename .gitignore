@@ -87,6 +87,8 @@ temp/
 
 # =========== Data ===========
 uploads/
+data/
+**/data/storage/
 *.db
 *.sqlite
 *.sqlite3

@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	file "github.com/jiangbyte/light-gozero/service/demoservice/api/internal/handler/file"
 	hello "github.com/jiangbyte/light-gozero/service/demoservice/api/internal/handler/hello"
 	"github.com/jiangbyte/light-gozero/service/demoservice/api/internal/svc"
 
@@ -13,6 +14,42 @@ import (
 )
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+	server.AddRoutes(
+		[]rest.Route{
+			{
+				Method:  http.MethodGet,
+				Path:    "/file/head",
+				Handler: file.FileHeadHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/file/upload/abort",
+				Handler: file.FileUploadAbortHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/file/upload/complete",
+				Handler: file.FileUploadCompleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/file/upload/init",
+				Handler: file.FileUploadInitHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/file/upload/part_url",
+				Handler: file.FileUploadPartUrlHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/file/upload/parts",
+				Handler: file.FileUploadPartsHandler(serverCtx),
+			},
+		},
+		rest.WithPrefix("/api/v1"),
+	)
+
 	server.AddRoutes(
 		[]rest.Route{
 			{

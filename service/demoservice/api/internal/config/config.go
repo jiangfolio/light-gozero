@@ -3,8 +3,12 @@
 
 package config
 
-import "github.com/zeromicro/go-zero/rest"
+import (
+	"github.com/jiangbyte/light-gozero/common/storage"
+	"github.com/zeromicro/go-zero/rest"
+)
 
 type Config struct {
 	rest.RestConf
+	Storage storage.Config
 }

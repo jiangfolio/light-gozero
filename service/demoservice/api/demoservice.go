@@ -32,6 +32,8 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+	// 2. 注册分片 PUT / 公开直链等原始二进制路由
+	handler.RegisterRawFileHandlers(server, ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

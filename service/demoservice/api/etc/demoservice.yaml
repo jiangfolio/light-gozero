@@ -1,3 +1,27 @@
 Name: demoservice
 Host: 0.0.0.0
 Port: 8889
+MaxBytes: 10485760
+Timeout: 120000
+
+Storage:
+  Provider: s3
+  AccessMode: private
+  PublicBaseURL: ""
+  AllowInsecurePublicURL: true
+  # S3 非最后分片须 >= 5MiB
+  ChunkSizeBytes: 5242880
+  MaxObjectBytes: 67108864
+  UploadExpireSeconds: 86400
+  Integrity:
+    FullContentHash: false
+  Local:
+    Root: ./data/storage
+  S3:
+    Endpoint: http://127.0.0.1:9000
+    Region: us-east-1
+    Bucket: light-gozero
+    AccessKey: admin
+    SecretKey: infra123!
+    ForcePathStyle: true
+    PresignExpireSeconds: 900

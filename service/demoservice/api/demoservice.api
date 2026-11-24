@@ -9,5 +9,6 @@ info (
 
 import (
 	"desc/hello/hello.api"
+	"desc/file/file.api"
 )
 

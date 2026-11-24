@@ -1,0 +1,113 @@
+syntax = "v1"
+
+type FileUploadInitReq {
+	Key         string `json:"key"`
+	ContentType string `json:"content_type,optional"`
+}
+
+type FileUploadInitResp {
+	UploadId   string `json:"upload_id"`
+	Provider   string `json:"provider"`
+	AccessMode string `json:"access_mode"`
+	ChunkSize  string `json:"chunk_size"`
+	MaxParts   string `json:"max_parts"`
+	PublicUrl  string `json:"public_url,optional"`
+}
+
+type FileUploadPartsReq {
+	Key      string `form:"key"`
+	UploadId string `form:"upload_id"`
+}
+
+type FileUploadPartItem {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size"`
+	Sha256     string `json:"sha256"`
+}
+
+type FileUploadPartsResp {
+	Items []FileUploadPartItem `json:"items"`
+}
+
+type FileUploadPartUrlReq {
+	Key         string `json:"key"`
+	UploadId    string `json:"upload_id"`
+	PartNumber  string `json:"part_number"`
+	Size        string `json:"size,optional"`
+	ChunkSha256 string `json:"chunk_sha256,optional"`
+}
+
+type FileUploadPartUrlResp {
+	UploadUrl string            `json:"upload_url"`
+	Headers   map[string]string `json:"headers,optional"`
+	ExpiresAt string            `json:"expires_at"`
+}
+
+type FileUploadCompletePart {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size,optional"`
+	Sha256     string `json:"sha256,optional"`
+	Etag       string `json:"etag,optional"`
+}
+
+type FileUploadCompleteReq {
+	Key          string                   `json:"key"`
+	UploadId     string                   `json:"upload_id"`
+	MerkleSha256 string                   `json:"merkle_sha256,optional"`
+	Parts        []FileUploadCompletePart `json:"parts,optional"`
+}
+
+type FileUploadCompleteResp {
+	Key          string `json:"key"`
+	Size         string `json:"size"`
+	MerkleSha256 string `json:"merkle_sha256"`
+	ChunkCount   string `json:"chunk_count"`
+	PublicUrl    string `json:"public_url,optional"`
+}
+
+type FileUploadAbortReq {
+	Key      string `json:"key"`
+	UploadId string `json:"upload_id"`
+}
+
+type FilePutPartResp {
+	PartNumber string `json:"part_number"`
+	Size       string `json:"size"`
+	Sha256     string `json:"sha256"`
+}
+
+type FileHeadReq {
+	Key string `form:"key"`
+}
+
+type FileHeadResp {
+	Key          string `json:"key"`
+	Size         string `json:"size"`
+	MerkleSha256 string `json:"merkle_sha256"`
+	ChunkCount   string `json:"chunk_count"`
+	PublicUrl    string `json:"public_url,optional"`
+}
+
+@server (
+	prefix: /api/v1
+	group:  file
+)
+service demoservice {
+	@handler FileUploadInit
+	post /file/upload/init (FileUploadInitReq) returns (FileUploadInitResp)
+
+	@handler FileUploadPartUrl
+	post /file/upload/part_url (FileUploadPartUrlReq) returns (FileUploadPartUrlResp)
+
+	@handler FileUploadParts
+	get /file/upload/parts (FileUploadPartsReq) returns (FileUploadPartsResp)
+
+	@handler FileUploadComplete
+	post /file/upload/complete (FileUploadCompleteReq) returns (FileUploadCompleteResp)
+
+	@handler FileUploadAbort
+	post /file/upload/abort (FileUploadAbortReq)
+
+	@handler FileHead
+	get /file/head (FileHeadReq) returns (FileHeadResp)
+}
