@@ -1,0 +1,86 @@
+syntax = "v1"
+
+type RoleCreateReq {
+	Name      string   `json:"name"`
+	Code      string   `json:"code"`
+	DataScope string   `json:"data_scope,optional"`
+	OrgIds    []string `json:"org_ids,optional"`
+	Remark    string   `json:"remark,optional"`
+	Status    string   `json:"status,optional"`
+}
+
+type RoleUpdateReq {
+	Id        string   `json:"id"`
+	Name      string   `json:"name,optional"`
+	Code      string   `json:"code,optional"`
+	DataScope string   `json:"data_scope,optional"`
+	OrgIds    []string `json:"org_ids,optional"`
+	Remark    string   `json:"remark,optional"`
+	Status    string   `json:"status,optional"`
+}
+
+type RoleDetailReq {
+	Id string `form:"id"`
+}
+
+type RoleItem {
+	Id        string   `json:"id"`
+	Name      string   `json:"name"`
+	Code      string   `json:"code"`
+	DataScope string   `json:"data_scope"`
+	OrgIds    []string `json:"org_ids"`
+	Remark    string   `json:"remark"`
+	Status    string   `json:"status"`
+	CreatedBy string   `json:"created_by"`
+	UpdatedBy string   `json:"updated_by"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
+}
+
+type RolePageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Name     string `form:"name,optional"`
+	Code     string `form:"code,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type RolePageResp {
+	Items    []RoleItem `json:"items"`
+	Page     string     `json:"page"`
+	PageSize string     `json:"page_size"`
+	Total    string     `json:"total"`
+}
+
+type RoleBindResourcesReq {
+	RoleId      string   `json:"role_id"`
+	ResourceIds []string `json:"resource_ids"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      role
+	middleware: Auth,OperLog
+)
+service system {
+	@handler RoleCreate
+	post /role/create (RoleCreateReq) returns (IdResp)
+
+	@handler RoleUpdate
+	post /role/update (RoleUpdateReq)
+
+	@handler RoleDelete
+	post /role/delete (IdsReq)
+
+	@handler RoleDetail
+	get /role/detail (RoleDetailReq) returns (RoleItem)
+
+	@handler RolePage
+	get /role/page (RolePageReq) returns (RolePageResp)
+
+	@handler RoleBindResources
+	post /role/bind_resources (RoleBindResourcesReq)
+
+	@handler RoleUnbindResources
+	post /role/unbind_resources (RoleBindResourcesReq)
+}

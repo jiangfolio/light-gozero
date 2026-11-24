@@ -1,0 +1,63 @@
+syntax = "v1"
+
+type LoginReq {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	CaptchaId   string `json:"captcha_id"`
+	CaptchaCode string `json:"captcha_code"`
+}
+
+type LoginUser {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+	Nickname string `json:"nickname"`
+	OrgId    string `json:"org_id"`
+}
+
+type LoginResp {
+	Token              string    `json:"token"`
+	MustChangePassword string    `json:"must_change_password"`
+	User               LoginUser `json:"user"`
+}
+
+type CaptchaResp {
+	CaptchaId    string `json:"captcha_id"`
+	CaptchaImage string `json:"captcha_image"`
+}
+
+type PublicKeyResp {
+	PublicKey string `json:"public_key"`
+}
+
+type ChangePasswordReq {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+@server (
+	prefix: /api/v1
+	group:  auth
+)
+service system {
+	@handler Captcha
+	get /auth/captcha returns (CaptchaResp)
+
+	@handler PublicKey
+	get /auth/public_key returns (PublicKeyResp)
+
+	@handler Login
+	post /auth/login (LoginReq) returns (LoginResp)
+}
+
+@server (
+	prefix:     /api/v1
+	group:      auth
+	middleware: Auth,OperLog
+)
+service system {
+	@handler Logout
+	post /auth/logout
+
+	@handler ChangePassword
+	post /auth/change_password (ChangePasswordReq)
+}

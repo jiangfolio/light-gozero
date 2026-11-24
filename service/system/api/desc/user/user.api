@@ -1,0 +1,112 @@
+syntax = "v1"
+
+type UserCreateReq {
+	OrgId    string `json:"org_id"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Nickname string `json:"nickname,optional"`
+	Status   string `json:"status,optional"`
+}
+
+type UserUpdateReq {
+	Id       string `json:"id"`
+	OrgId    string `json:"org_id,optional"`
+	Nickname string `json:"nickname,optional"`
+	Password string `json:"password,optional"`
+	Status   string `json:"status,optional"`
+}
+
+type UserDetailReq {
+	Id string `form:"id"`
+}
+
+type UserItem {
+	Id        string `json:"id"`
+	OrgId     string `json:"org_id"`
+	Username  string `json:"username"`
+	Nickname  string `json:"nickname"`
+	Status    string `json:"status"`
+	CreatedBy string `json:"created_by"`
+	UpdatedBy string `json:"updated_by"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type UserPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Username string `form:"username,optional"`
+	OrgId    string `form:"org_id,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type UserPageResp {
+	Items    []UserItem `json:"items"`
+	Page     string     `json:"page"`
+	PageSize string     `json:"page_size"`
+	Total    string     `json:"total"`
+}
+
+type UserBindRolesReq {
+	UserId  string   `json:"user_id"`
+	RoleIds []string `json:"role_ids"`
+}
+
+type UserResourcesReq {
+	UserId string `form:"user_id,optional"`
+}
+
+type ResourceNode {
+	Id            string         `json:"id"`
+	ParentId      string         `json:"parent_id"`
+	Name          string         `json:"name"`
+	Type          string         `json:"type"`
+	PermCode      string         `json:"perm_code"`
+	Path          string         `json:"path"`
+	ComponentPath string         `json:"component_path"`
+	Redirect      string         `json:"redirect"`
+	RouteName     string         `json:"route_name"`
+	Icon          string         `json:"icon"`
+	Hidden        string         `json:"hidden"`
+	KeepAlive     string         `json:"keep_alive"`
+	Affix         string         `json:"affix"`
+	Sort          string         `json:"sort"`
+	Status        string         `json:"status"`
+	Children      []ResourceNode `json:"children"`
+}
+
+type UserResourcesResp {
+	Resources []ResourceNode `json:"resources"`
+	Perms     []string       `json:"perms"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      user
+	middleware: Auth,OperLog
+)
+service system {
+	@handler UserCreate
+	post /user/create (UserCreateReq) returns (IdResp)
+
+	@handler UserUpdate
+	post /user/update (UserUpdateReq)
+
+	@handler UserDelete
+	post /user/delete (IdsReq)
+
+	@handler UserDetail
+	get /user/detail (UserDetailReq) returns (UserItem)
+
+	@handler UserPage
+	get /user/page (UserPageReq) returns (UserPageResp)
+
+	@handler UserBindRoles
+	post /user/bind_roles (UserBindRolesReq)
+
+	@handler UserUnbindRoles
+	post /user/unbind_roles (UserBindRolesReq)
+
+	@handler UserResources
+	get /user/resources (UserResourcesReq) returns (UserResourcesResp)
+}

@@ -1,0 +1,72 @@
+syntax = "v1"
+
+type OrgCreateReq {
+	ParentId string `json:"parent_id,optional"`
+	Name     string `json:"name"`
+	Code     string `json:"code"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+}
+
+type OrgUpdateReq {
+	Id       string `json:"id"`
+	ParentId string `json:"parent_id,optional"`
+	Name     string `json:"name,optional"`
+	Code     string `json:"code,optional"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+}
+
+type OrgDetailReq {
+	Id string `form:"id"`
+}
+
+type OrgItem {
+	Id        string `json:"id"`
+	ParentId  string `json:"parent_id"`
+	Name      string `json:"name"`
+	Code      string `json:"code"`
+	Sort      string `json:"sort"`
+	Status    string `json:"status"`
+	CreatedBy string `json:"created_by"`
+	UpdatedBy string `json:"updated_by"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type OrgPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Name     string `form:"name,optional"`
+	Code     string `form:"code,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type OrgPageResp {
+	Items    []OrgItem `json:"items"`
+	Page     string    `json:"page"`
+	PageSize string    `json:"page_size"`
+	Total    string    `json:"total"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      org
+	middleware: Auth,OperLog
+)
+service system {
+	@handler OrgCreate
+	post /org/create (OrgCreateReq) returns (IdResp)
+
+	@handler OrgUpdate
+	post /org/update (OrgUpdateReq)
+
+	@handler OrgDelete
+	post /org/delete (IdsReq)
+
+	@handler OrgDetail
+	get /org/detail (OrgDetailReq) returns (OrgItem)
+
+	@handler OrgPage
+	get /org/page (OrgPageReq) returns (OrgPageResp)
+}

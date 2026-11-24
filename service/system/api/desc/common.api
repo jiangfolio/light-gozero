@@ -1,0 +1,9 @@
+syntax = "v1"
+
+type IdsReq {
+	Ids []string `json:"ids"`
+}
+
+type IdResp {
+	Id string `json:"id"`
+}

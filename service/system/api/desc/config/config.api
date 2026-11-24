@@ -1,0 +1,78 @@
+syntax = "v1"
+
+type ConfigPageReq {
+	Page      string `form:"page"`
+	PageSize  string `form:"page_size"`
+	GroupName string `form:"group_name,optional"`
+	ConfigKey string `form:"config_key,optional"`
+	Status    string `form:"status,optional"`
+}
+
+type ConfigItem {
+	Id          string `json:"id"`
+	ConfigKey   string `json:"config_key"`
+	ConfigValue string `json:"config_value"`
+	ValueType   string `json:"value_type"`
+	GroupName   string `json:"group_name"`
+	Remark      string `json:"remark"`
+	Status      string `json:"status"`
+	CreatedBy   string `json:"created_by"`
+	UpdatedBy   string `json:"updated_by"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
+}
+
+type ConfigPageResp {
+	Items    []ConfigItem `json:"items"`
+	Page     string       `json:"page"`
+	PageSize string       `json:"page_size"`
+	Total    string       `json:"total"`
+}
+
+type ConfigDetailReq {
+	Id        string `form:"id,optional"`
+	ConfigKey string `form:"config_key,optional"`
+}
+
+type ConfigUpdateReq {
+	Id          string `json:"id"`
+	ConfigValue string `json:"config_value"`
+	Remark      string `json:"remark,optional"`
+	Status      string `json:"status,optional"`
+}
+
+type ConfigPublicItem {
+	ConfigKey   string `json:"config_key"`
+	ConfigValue string `json:"config_value"`
+	ValueType   string `json:"value_type"`
+	GroupName   string `json:"group_name"`
+}
+
+type ConfigPublicResp {
+	Items []ConfigPublicItem `json:"items"`
+}
+
+@server (
+	prefix: /api/v1
+	group:  config
+)
+service system {
+	@handler ConfigPublic
+	get /config/public returns (ConfigPublicResp)
+}
+
+@server (
+	prefix:     /api/v1
+	group:      config
+	middleware: Auth,OperLog
+)
+service system {
+	@handler ConfigPage
+	get /config/page (ConfigPageReq) returns (ConfigPageResp)
+
+	@handler ConfigDetail
+	get /config/detail (ConfigDetailReq) returns (ConfigItem)
+
+	@handler ConfigUpdate
+	post /config/update (ConfigUpdateReq)
+}

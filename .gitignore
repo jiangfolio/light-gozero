@@ -1,0 +1,107 @@
+# Local overrides (secrets)
+**/etc/*-local.yaml
+**/etc/system.local.yaml
+
+# =========== Go ===========
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+*.test
+*.o
+*.a
+*.obj
+*.lib
+*.tar
+*.tar.gz
+
+# Build output
+/bin/
+/build/
+/dist/
+/target/
+build/
+dist/
+videosystem/bin/
+
+# Dependencies
+vendor/
+**/vendor/
+dep
+go.work
+go.work.sum
+
+# =========== IDE / Editor ===========
+.cursor/
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*.swn
+.vim/
+*~
+\#*\#
+.vs/
+*.suo
+*.user
+
+# =========== OS ===========
+Thumbs.db
+.DS_Store
+.directory
+.Trash-*
+.nfs*
+
+# =========== Environment & Secrets ===========
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# =========== Config ===========
+config.local.yaml
+config.local.yml
+*.local.yaml
+*.local.yml
+
+# =========== Logs & Temp ===========
+logs/
+*.log
+*.log.*
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+
+# =========== Data ===========
+uploads/
+*.db
+*.sqlite
+*.sqlite3
+
+# =========== Node / Frontend ===========
+node_modules/
+**/node_modules/
+dist-ssr/
+.eslintcache
+
+# =========== Misc ===========
+*.coverprofile
+coverage.out
+*.prof
+*.pprof
+.claude/
+.docker/
+docker-compose.override.yml

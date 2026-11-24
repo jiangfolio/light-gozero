@@ -1,0 +1,99 @@
+syntax = "v1"
+
+type ResourceCreateReq {
+	ParentId      string `json:"parent_id,optional"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+	PermCode      string `json:"perm_code,optional"`
+	Path          string `json:"path,optional"`
+	ComponentPath string `json:"component_path,optional"`
+	Redirect      string `json:"redirect,optional"`
+	RouteName     string `json:"route_name,optional"`
+	Icon          string `json:"icon,optional"`
+	Hidden        string `json:"hidden,optional"`
+	KeepAlive     string `json:"keep_alive,optional"`
+	Affix         string `json:"affix,optional"`
+	Sort          string `json:"sort,optional"`
+	Status        string `json:"status,optional"`
+}
+
+type ResourceUpdateReq {
+	Id            string `json:"id"`
+	ParentId      string `json:"parent_id,optional"`
+	Name          string `json:"name,optional"`
+	Type          string `json:"type,optional"`
+	PermCode      string `json:"perm_code,optional"`
+	Path          string `json:"path,optional"`
+	ComponentPath string `json:"component_path,optional"`
+	Redirect      string `json:"redirect,optional"`
+	RouteName     string `json:"route_name,optional"`
+	Icon          string `json:"icon,optional"`
+	Hidden        string `json:"hidden,optional"`
+	KeepAlive     string `json:"keep_alive,optional"`
+	Affix         string `json:"affix,optional"`
+	Sort          string `json:"sort,optional"`
+	Status        string `json:"status,optional"`
+}
+
+type ResourceDetailReq {
+	Id string `form:"id"`
+}
+
+type ResourceItem {
+	Id            string `json:"id"`
+	ParentId      string `json:"parent_id"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+	PermCode      string `json:"perm_code"`
+	Path          string `json:"path"`
+	ComponentPath string `json:"component_path"`
+	Redirect      string `json:"redirect"`
+	RouteName     string `json:"route_name"`
+	Icon          string `json:"icon"`
+	Hidden        string `json:"hidden"`
+	KeepAlive     string `json:"keep_alive"`
+	Affix         string `json:"affix"`
+	Sort          string `json:"sort"`
+	Status        string `json:"status"`
+	CreatedBy     string `json:"created_by"`
+	UpdatedBy     string `json:"updated_by"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
+}
+
+type ResourcePageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Name     string `form:"name,optional"`
+	Type     string `form:"type,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type ResourcePageResp {
+	Items    []ResourceItem `json:"items"`
+	Page     string         `json:"page"`
+	PageSize string         `json:"page_size"`
+	Total    string         `json:"total"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      resource
+	middleware: Auth,OperLog
+)
+service system {
+	@handler ResourceCreate
+	post /resource/create (ResourceCreateReq) returns (IdResp)
+
+	@handler ResourceUpdate
+	post /resource/update (ResourceUpdateReq)
+
+	@handler ResourceDelete
+	post /resource/delete (IdsReq)
+
+	@handler ResourceDetail
+	get /resource/detail (ResourceDetailReq) returns (ResourceItem)
+
+	@handler ResourcePage
+	get /resource/page (ResourcePageReq) returns (ResourcePageResp)
+}

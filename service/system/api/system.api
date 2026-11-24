@@ -1,0 +1,21 @@
+syntax = "v1"
+
+info (
+	title:   "system"
+	desc:    "system base service with RBAC"
+	author:  "charlie"
+	version: "v1"
+)
+
+import (
+	"desc/common.api"
+	"desc/auth/auth.api"
+	"desc/org/org.api"
+	"desc/user/user.api"
+	"desc/role/role.api"
+	"desc/resource/resource.api"
+	"desc/audit/audit.api"
+	"desc/config/config.api"
+	"desc/dict/dict.api"
+)
+

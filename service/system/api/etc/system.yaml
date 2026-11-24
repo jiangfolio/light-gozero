@@ -1,0 +1,55 @@
+Name: system
+Host: 0.0.0.0
+Port: 8888
+MaxConns: 10000
+MaxBytes: 1048576
+Timeout: 3000
+CpuThreshold: 900
+
+Log:
+  ServiceName: system
+  Mode: console
+  Level: info
+  Encoding: json
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9101
+  Path: /metrics
+
+Middlewares:
+  Trace: true
+  Log: true
+  Prometheus: true
+  MaxConns: true
+  Breaker: true
+  Shedding: true
+  Timeout: true
+  Recover: true
+  Metrics: true
+  MaxBytes: true
+  Gunzip: true
+
+# TLS 由前置网关终止；本进程默认明文。
+TrustProxy: false
+
+RateLimit:
+  PeriodSeconds: 60
+  LoginQuota: 20
+  CaptchaQuota: 60
+  PublicKeyQuota: 60
+
+IdGen:
+  Mode: uuidv7
+
+# 生产请用环境变量 SYSTEM_PWD_PRIVATE_KEY / SYSTEM_MYSQL_DATASOURCE / SYSTEM_REDIS_PASS 覆盖
+PwdCipher:
+  PrivateKey: c351ebb6ad36d77acffaa929e770d040033d67d454b3aacc543fc957524e5925
+
+Mysql:
+  DataSource: root:infra123!@tcp(127.0.0.1:3306)/light_gozero?charset=utf8mb4&parseTime=true&loc=Local
+
+Redis:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: infra123!

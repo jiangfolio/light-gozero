@@ -1,0 +1,72 @@
+syntax = "v1"
+
+type AuditLoginPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Username string `form:"username,optional"`
+	Result   string `form:"result,optional"`
+}
+
+type AuditLoginItem {
+	Id         string `json:"id"`
+	UserId     string `json:"user_id"`
+	Username   string `json:"username"`
+	Ip         string `json:"ip"`
+	UserAgent  string `json:"user_agent"`
+	Result     string `json:"result"`
+	ResultName string `json:"result_name"`
+	Message    string `json:"message"`
+	CreatedAt  string `json:"created_at"`
+}
+
+type AuditLoginPageResp {
+	Items    []AuditLoginItem `json:"items"`
+	Page     string           `json:"page"`
+	PageSize string           `json:"page_size"`
+	Total    string           `json:"total"`
+}
+
+type AuditOperPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Username string `form:"username,optional"`
+	Module   string `form:"module,optional"`
+	Result   string `form:"result,optional"`
+}
+
+type AuditOperItem {
+	Id         string `json:"id"`
+	UserId     string `json:"user_id"`
+	Username   string `json:"username"`
+	Module     string `json:"module"`
+	Action     string `json:"action"`
+	Method     string `json:"method"`
+	Path       string `json:"path"`
+	ReqBody    string `json:"req_body"`
+	Ip         string `json:"ip"`
+	LatencyMs  string `json:"latency_ms"`
+	Result     string `json:"result"`
+	ResultName string `json:"result_name"`
+	Message    string `json:"message"`
+	CreatedAt  string `json:"created_at"`
+}
+
+type AuditOperPageResp {
+	Items    []AuditOperItem `json:"items"`
+	Page     string          `json:"page"`
+	PageSize string          `json:"page_size"`
+	Total    string          `json:"total"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      audit
+	middleware: Auth,OperLog
+)
+service system {
+	@handler AuditLoginPage
+	get /audit/login_page (AuditLoginPageReq) returns (AuditLoginPageResp)
+
+	@handler AuditOperPage
+	get /audit/oper_page (AuditOperPageReq) returns (AuditOperPageResp)
+}
