@@ -85,7 +85,8 @@
     │   ├── desc/              # .api 契约（auth org user role resource dict config audit）
     │   ├── etc/system.yaml    # 本地配置（生产用环境变量覆盖密钥）
     │   └── internal/          # handler · logic · model · middleware · svc
-    └── demoservice/api/       # 最小示例服务
+    └── demoservice/api/       # 最小示例服务（同 system：单应用多模块）
+        └── desc/              # .api 契约（hello …）
 ```
 
 ## 环境依赖
@@ -210,7 +211,7 @@ go run ./scripts/pwdenc <private_key_hex> '<plain_password>'
 
 - 「满足基础等保要求」指应用侧已覆盖身份鉴别、访问控制、审计、传输密文、限流等常见技术基线；**不构成**等保测评结论，正式过保需按等保对象与测评机构要求补齐网络、主机、管理制度与证据。
 - TLS / CORS 建议由网关终止；本进程默认明文监听，便于内网联调。
-- `demoservice` 仅作 go-zero 服务脚手架示例，无业务鉴权。
+- `demoservice` 仅作 go-zero 单应用多模块脚手架示例（`desc/**/*.api` + group），无业务鉴权。
 - 仓库内 yaml 默认密钥仅供本地演示；生产必须用环境变量或私有配置注入并轮换。
 
 ## License

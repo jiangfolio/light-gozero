@@ -1,0 +1,19 @@
+syntax = "v1"
+
+type HelloReq {
+	UserId string `form:"user_id,optional"`
+}
+
+type HelloResp {
+	Message string `json:"message"`
+	UserId  string `json:"user_id"`
+}
+
+@server (
+	prefix: /api/v1
+	group:  hello
+)
+service demoservice {
+	@handler Hello
+	get /hello (HelloReq) returns (HelloResp)
+}

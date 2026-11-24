@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	hello "github.com/jiangbyte/light-gozero/service/demoservice/api/internal/handler/hello"
 	"github.com/jiangbyte/light-gozero/service/demoservice/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -17,7 +18,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			{
 				Method:  http.MethodGet,
 				Path:    "/hello",
-				Handler: HelloHandler(serverCtx),
+				Handler: hello.HelloHandler(serverCtx),
 			},
 		},
 		rest.WithPrefix("/api/v1"),
