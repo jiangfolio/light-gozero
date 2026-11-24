@@ -106,7 +106,8 @@
 ## 快速开始
 
 ```bash
-git clone <本仓库> && cd light-gozero   # 或当前工程根目录
+git clone git@github.com:jiangfolio/light-gozero.git
+cd light-gozero
 git submodule update --init --recursive
 
 # 1. 初始化库表（UUIDv7 模式含种子数据）
