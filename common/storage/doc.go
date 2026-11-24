@@ -10,8 +10,9 @@
 //
 //  Initiate → PreparePart / PutPart → ListParts → Complete / Abort
 //
-// local：字节经服务端 PutPart，边写边算 SHA-256，Complete 仅聚合 Merkle，不重读正文。
-// s3：PreparePart 返回窄权限 UploadPart 预签名；PutPart 返回 ErrDirectUploadOnly。
+// HTTP 对前端统一为：init → part_url → PUT upload_url → complete(parts 含 etag)。
+// local：part_url 返回同域 /file/upload/part；PutPart 边写边算 SHA-256，响应 ETag=sha256。
+// s3：part_url 返回预签名 URL；PutPart 返回 ErrDirectUploadOnly；complete 需各 part etag。
 //
 // # 读访问
 //

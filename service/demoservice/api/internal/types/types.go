@@ -59,6 +59,7 @@ type FileUploadInitResp struct {
 	AccessMode string `json:"access_mode"`
 	ChunkSize  string `json:"chunk_size"`
 	MaxParts   string `json:"max_parts"`
+	UploadVia  string `json:"upload_via"`
 	PublicUrl  string `json:"public_url,optional"`
 }
 

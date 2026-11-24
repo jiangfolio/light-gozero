@@ -11,6 +11,8 @@ type FileUploadInitResp {
 	AccessMode string `json:"access_mode"`
 	ChunkSize  string `json:"chunk_size"`
 	MaxParts   string `json:"max_parts"`
+	// UploadVia 固定为 part_url：前端统一 init → part_url → PUT upload_url → complete(parts)
+	UploadVia  string `json:"upload_via"`
 	PublicUrl  string `json:"public_url,optional"`
 }
 

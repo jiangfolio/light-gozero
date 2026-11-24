@@ -29,7 +29,7 @@ func NewFileUploadInitLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Fi
 	}
 }
 
-// FileUploadInit 创建分片上传会话，返回分片大小与可选公开直链前缀信息。
+// FileUploadInit 创建分片上传会话；上传路径统一为 part_url。
 func (l *FileUploadInitLogic) FileUploadInit(req *types.FileUploadInitReq) (resp *types.FileUploadInitResp, err error) {
 	// 1. 校验 key
 	if req.Key == "" {
@@ -45,13 +45,14 @@ func (l *FileUploadInitLogic) FileUploadInit(req *types.FileUploadInitReq) (resp
 		return nil, MapStorageErr(err)
 	}
 
-	// 3. 组装响应；public 模式下附带稳定公开 URL（文件尚未 complete 前仅作预览地址）
+	// 3. 组装响应：UploadVia 固定 part_url，前端不必按 provider 分支
 	resp = &types.FileUploadInitResp{
 		UploadId:   uploadID,
 		Provider:   store.Provider(),
 		AccessMode: store.AccessMode(),
 		ChunkSize:  strconv.FormatInt(store.ChunkSize(), 10),
 		MaxParts:   strconv.Itoa(store.MaxParts()),
+		UploadVia:  "part_url",
 	}
 	if store.AccessMode() == storage.AccessPublic {
 		if u, uErr := store.PublicURL(req.Key); uErr == nil {
