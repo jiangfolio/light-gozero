@@ -1,0 +1,10 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.eslintcache
+*.tsbuildinfo
+# 由 unplugin 生成，本地/CI 构建时产出
+src/auto-imports.d.ts
+src/components.d.ts

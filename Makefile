@@ -64,11 +64,11 @@ gen-system-api: ## goctl 重新生成 system API（需本机 goctl）
 gen-demo-api: ## goctl 重新生成 demoservice API
 	cd $(DEMO_DIR) && $(GOCTL) api go -api demoservice.api -dir . --style go_zero
 
-web-install: ## 安装 web/admin 依赖
-	cd $(WEB_DIR) && npm install
+web-install: ## 安装 web/admin 依赖（pnpm）
+	cd $(WEB_DIR) && pnpm install
 
-web-dev: ## 启动管理端前端（:8081，代理 /api → :8888）
-	cd $(WEB_DIR) && npm run dev
+web-dev: ## 启动管理端前端（:8081；/api/system→:8888，/api/demo→:8889）
+	cd $(WEB_DIR) && pnpm run dev
 
 web-build: ## 构建管理端前端
-	cd $(WEB_DIR) && npm run build
+	cd $(WEB_DIR) && pnpm run build

@@ -98,8 +98,10 @@ data/
 # =========== Node / Frontend ===========
 node_modules/
 **/node_modules/
+.pnpm-store/
 dist-ssr/
 .eslintcache
+web/admin/dist/
 
 # =========== Misc ===========
 *.coverprofile
