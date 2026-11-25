@@ -1,29 +1,7 @@
 syntax = "v1"
 
-type DictCreateReq {
-	ParentId string `json:"parent_id,optional"`
-	DictCode string `json:"dict_code"`
-	Label    string `json:"label"`
-	Value    string `json:"value,optional"`
-	Sort     string `json:"sort,optional"`
-	Status   string `json:"status,optional"`
-	Remark   string `json:"remark,optional"`
-}
-
-type DictUpdateReq {
-	Id       string `json:"id"`
-	Label    string `json:"label,optional"`
-	Value    string `json:"value,optional"`
-	Sort     string `json:"sort,optional"`
-	Status   string `json:"status,optional"`
-	Remark   string `json:"remark,optional"`
-}
-
-type DictDetailReq {
-	Id string `form:"id"`
-}
-
-type DictItem {
+// DictInfo 字典行（类型与项字段相同，靠 parent_id 区分）。
+type DictInfo {
 	Id        string `json:"id"`
 	ParentId  string `json:"parent_id"`
 	DictCode  string `json:"dict_code"`
@@ -38,17 +16,74 @@ type DictItem {
 	UpdatedAt string `json:"updated_at"`
 }
 
-type DictPageReq {
+type DictTypeCreateReq {
+	DictCode string `json:"dict_code"`
+	Label    string `json:"label"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+	Remark   string `json:"remark,optional"`
+}
+
+type DictTypeUpdateReq {
+	Id     string `json:"id"`
+	Label  string `json:"label,optional"`
+	Sort   string `json:"sort,optional"`
+	Status string `json:"status,optional"`
+	Remark string `json:"remark,optional"`
+}
+
+type DictTypeDetailReq {
+	Id string `form:"id"`
+}
+
+type DictTypePageReq {
 	Page     string `form:"page"`
 	PageSize string `form:"page_size"`
-	ParentId string `form:"parent_id,optional"`
 	DictCode string `form:"dict_code,optional"`
 	Label    string `form:"label,optional"`
 	Status   string `form:"status,optional"`
 }
 
-type DictPageResp {
-	Items    []DictItem `json:"items"`
+type DictTypePageResp {
+	Items    []DictInfo `json:"items"`
+	Page     string     `json:"page"`
+	PageSize string     `json:"page_size"`
+	Total    string     `json:"total"`
+}
+
+type DictItemCreateReq {
+	ParentId string `json:"parent_id"`
+	Label    string `json:"label"`
+	Value    string `json:"value"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+	Remark   string `json:"remark,optional"`
+}
+
+type DictItemUpdateReq {
+	Id     string `json:"id"`
+	Label  string `json:"label,optional"`
+	Value  string `json:"value,optional"`
+	Sort   string `json:"sort,optional"`
+	Status string `json:"status,optional"`
+	Remark string `json:"remark,optional"`
+}
+
+type DictItemDetailReq {
+	Id string `form:"id"`
+}
+
+type DictItemPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	ParentId string `form:"parent_id"`
+	Label    string `form:"label,optional"`
+	Value    string `form:"value,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type DictItemPageResp {
+	Items    []DictInfo `json:"items"`
 	Page     string     `json:"page"`
 	PageSize string     `json:"page_size"`
 	Total    string     `json:"total"`
@@ -74,20 +109,35 @@ type DictByCodeResp {
 	middleware: Auth,OperLog
 )
 service system {
-	@handler DictCreate
-	post /dict/create (DictCreateReq) returns (IdResp)
+	@handler DictTypeCreate
+	post /dict/type/create (DictTypeCreateReq) returns (IdResp)
 
-	@handler DictUpdate
-	post /dict/update (DictUpdateReq)
+	@handler DictTypeUpdate
+	post /dict/type/update (DictTypeUpdateReq)
 
-	@handler DictDelete
-	post /dict/delete (IdsReq)
+	@handler DictTypeDelete
+	post /dict/type/delete (IdsReq)
 
-	@handler DictDetail
-	get /dict/detail (DictDetailReq) returns (DictItem)
+	@handler DictTypeDetail
+	get /dict/type/detail (DictTypeDetailReq) returns (DictInfo)
 
-	@handler DictPage
-	get /dict/page (DictPageReq) returns (DictPageResp)
+	@handler DictTypePage
+	get /dict/type/page (DictTypePageReq) returns (DictTypePageResp)
+
+	@handler DictItemCreate
+	post /dict/item/create (DictItemCreateReq) returns (IdResp)
+
+	@handler DictItemUpdate
+	post /dict/item/update (DictItemUpdateReq)
+
+	@handler DictItemDelete
+	post /dict/item/delete (IdsReq)
+
+	@handler DictItemDetail
+	get /dict/item/detail (DictItemDetailReq) returns (DictInfo)
+
+	@handler DictItemPage
+	get /dict/item/page (DictItemPageReq) returns (DictItemPageResp)
 
 	@handler DictByCode
 	get /dict/by_code (DictByCodeReq) returns (DictByCodeResp)

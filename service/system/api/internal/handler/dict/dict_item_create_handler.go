@@ -12,16 +12,16 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func DictPageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func DictItemCreateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.DictPageReq
+		var req types.DictItemCreateReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := dict.NewDictPageLogic(r.Context(), svcCtx)
-		resp, err := l.DictPage(&req)
+		l := dict.NewDictItemCreateLogic(r.Context(), svcCtx)
+		resp, err := l.DictItemCreate(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

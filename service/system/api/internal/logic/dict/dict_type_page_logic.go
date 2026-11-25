@@ -13,17 +13,18 @@ import (
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/types"
 )
 
-type DictPageLogic struct {
+type DictTypePageLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewDictPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DictPageLogic {
-	return &DictPageLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
+func NewDictTypePageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DictTypePageLogic {
+	return &DictTypePageLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
 }
 
-func (l *DictPageLogic) DictPage(req *types.DictPageReq) (resp *types.DictPageResp, err error) {
+func (l *DictTypePageLogic) DictTypePage(req *types.DictTypePageReq) (resp *types.DictTypePageResp, err error) {
+	// 1. 校验权限与分页参数
 	if err := l.svcCtx.RbacGuard.Require(l.ctx, authctx.UserId(l.ctx), perm.SystemDictPage); err != nil {
 		return nil, err
 	}
@@ -40,15 +41,16 @@ func (l *DictPageLogic) DictPage(req *types.DictPageReq) (resp *types.DictPageRe
 		}
 		hasStatus = true
 	}
-	list, total, err := l.svcCtx.Repo.Dict.Page(l.ctx, req.ParentId, req.DictCode, req.Label, status, hasStatus, pageutil.Offset(page, pageSize), pageSize)
+	// 2. 仅查类型行（repo 固定 parent_id=''）
+	list, total, err := l.svcCtx.Repo.Dict.PageTypes(l.ctx, req.DictCode, req.Label, status, hasStatus, pageutil.Offset(page, pageSize), pageSize)
 	if err != nil {
 		return nil, err
 	}
-	items := make([]types.DictItem, 0, len(list))
+	items := make([]types.DictInfo, 0, len(list))
 	for i := range list {
-		items = append(items, *toDictItem(&list[i]))
+		items = append(items, *toDictInfo(&list[i]))
 	}
-	return &types.DictPageResp{
+	return &types.DictTypePageResp{
 		Items: items, Page: convert.Int64ToString(int64(page)),
 		PageSize: convert.Int64ToString(int64(pageSize)), Total: convert.Int64ToString(total),
 	}, nil

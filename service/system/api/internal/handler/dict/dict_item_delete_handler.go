@@ -12,20 +12,20 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func DictCreateHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func DictItemDeleteHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.DictCreateReq
+		var req types.IdsReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := dict.NewDictCreateLogic(r.Context(), svcCtx)
-		resp, err := l.DictCreate(&req)
+		l := dict.NewDictItemDeleteLogic(r.Context(), svcCtx)
+		err := l.DictItemDelete(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resp)
+			httpx.OkJsonCtx(r.Context(), w, map[string]any{})
 		}
 	}
 }

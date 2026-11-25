@@ -14,18 +14,18 @@ import (
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/types"
 )
 
-type DictUpdateLogic struct {
+type DictItemUpdateLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewDictUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DictUpdateLogic {
-	return &DictUpdateLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
+func NewDictItemUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DictItemUpdateLogic {
+	return &DictItemUpdateLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
 }
 
-func (l *DictUpdateLogic) DictUpdate(req *types.DictUpdateReq) error {
-	// 1. 校验权限与目标存在
+func (l *DictItemUpdateLogic) DictItemUpdate(req *types.DictItemUpdateReq) error {
+	// 1. 校验权限与目标存在，且必须是字典项
 	if err := l.svcCtx.RbacGuard.Require(l.ctx, authctx.UserId(l.ctx), perm.SystemDictUpdate); err != nil {
 		return err
 	}
@@ -34,16 +34,16 @@ func (l *DictUpdateLogic) DictUpdate(req *types.DictUpdateReq) error {
 	}
 	row, err := l.svcCtx.Repo.Dict.FindById(l.ctx, req.Id)
 	if err != nil {
-		return errorx.New(404, "字典不存在")
+		return errorx.New(404, "字典项不存在")
 	}
-	// 2. 类型禁止改 value；项改 value 时不得为空
+	if row.ParentId == "" {
+		return errorx.New(400, "目标不是字典项")
+	}
+	// 2. 按需更新字段；value 若传入不得为空
 	if req.Label != "" {
 		row.Label = req.Label
 	}
 	if req.Value != "" {
-		if row.ParentId == "" {
-			return errorx.New(400, "字典类型取值须为空")
-		}
 		row.Value = req.Value
 	}
 	if req.Sort != "" {
@@ -67,6 +67,6 @@ func (l *DictUpdateLogic) DictUpdate(req *types.DictUpdateReq) error {
 	if err := l.svcCtx.Repo.Dict.Save(l.ctx, row); err != nil {
 		return err
 	}
-	operlog.SetSummary(l.ctx, "更新字典「"+row.Label+"」")
+	operlog.SetSummary(l.ctx, "更新字典项「"+row.Label+"」")
 	return nil
 }

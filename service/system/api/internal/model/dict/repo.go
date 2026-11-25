@@ -26,6 +26,23 @@ func (r *Repo) FindById(ctx context.Context, id string) (*SysDict, error) {
 	return &row, nil
 }
 
+// ListByIds 按 ID 批量加载字典行。
+func (r *Repo) ListByIds(ctx context.Context, ids []string) ([]SysDict, error) {
+	ids = batchutil.UniqueStrings(ids)
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	var list []SysDict
+	for _, part := range batchutil.Chunk(ids, batchutil.InSize) {
+		var chunk []SysDict
+		if err := r.withCtx(ctx).Where("id IN ?", part).Find(&chunk).Error; err != nil {
+			return nil, err
+		}
+		list = append(list, chunk...)
+	}
+	return list, nil
+}
+
 // FindTypeByCode 按编码查找字典类型（parent_id 为空且 value 为空）。
 func (r *Repo) FindTypeByCode(ctx context.Context, dictCode string) (*SysDict, error) {
 	var row SysDict
@@ -52,16 +69,35 @@ func (r *Repo) CountChildren(ctx context.Context, parentIds []string) (int64, er
 	return total, nil
 }
 
-func (r *Repo) Page(ctx context.Context, parentId, dictCode, label string, status int64, hasStatus bool, offset, limit int) ([]SysDict, int64, error) {
-	q := r.withCtx(ctx).Model(&SysDict{})
-	if parentId != "" {
-		q = q.Where("parent_id = ?", parentId)
-	}
+// PageTypes 分页查询字典类型（固定 parent_id 为空）。
+func (r *Repo) PageTypes(ctx context.Context, dictCode, label string, status int64, hasStatus bool, offset, limit int) ([]SysDict, int64, error) {
+	q := r.withCtx(ctx).Model(&SysDict{}).Where("parent_id = ''")
 	if dictCode != "" {
 		q = q.Where("dict_code = ?", dictCode)
 	}
 	if label != "" {
 		q = q.Where("label LIKE ?", "%"+label+"%")
+	}
+	if hasStatus {
+		q = q.Where("status = ?", status)
+	}
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var list []SysDict
+	err := q.Order("sort asc, created_at desc").Offset(offset).Limit(limit).Find(&list).Error
+	return list, total, err
+}
+
+// PageItems 分页查询某类型下的字典项（固定 parent_id）。
+func (r *Repo) PageItems(ctx context.Context, parentId, label, value string, status int64, hasStatus bool, offset, limit int) ([]SysDict, int64, error) {
+	q := r.withCtx(ctx).Model(&SysDict{}).Where("parent_id = ?", parentId)
+	if label != "" {
+		q = q.Where("label LIKE ?", "%"+label+"%")
+	}
+	if value != "" {
+		q = q.Where("value = ?", value)
 	}
 	if hasStatus {
 		q = q.Where("status = ?", status)

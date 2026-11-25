@@ -6,8 +6,8 @@ import (
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/types"
 )
 
-func toDictItem(row *dictmodel.SysDict) *types.DictItem {
-	return &types.DictItem{
+func toDictInfo(row *dictmodel.SysDict) *types.DictInfo {
+	return &types.DictInfo{
 		Id: row.Id, ParentId: row.ParentId, DictCode: row.DictCode,
 		Label: row.Label, Value: row.Value,
 		Sort: convert.Int64ToString(row.Sort), Status: convert.Int64ToString(row.Status),

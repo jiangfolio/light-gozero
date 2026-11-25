@@ -12,16 +12,16 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
-func DictDetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func DictTypeDetailHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.DictDetailReq
+		var req types.DictTypeDetailReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 			return
 		}
 
-		l := dict.NewDictDetailLogic(r.Context(), svcCtx)
-		resp, err := l.DictDetail(&req)
+		l := dict.NewDictTypeDetailLogic(r.Context(), svcCtx)
+		resp, err := l.DictTypeDetail(&req)
 		if err != nil {
 			httpx.ErrorCtx(r.Context(), w, err)
 		} else {

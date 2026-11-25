@@ -116,11 +116,13 @@ type ConfigPublicResp struct {
 	Items []ConfigPublicItem `json:"items"`
 }
 
-type ConfigUpdateReq struct {
-	Id          string `json:"id"`
+type ConfigUpdateItem struct {
+	ConfigKey   string `json:"config_key"`
 	ConfigValue string `json:"config_value"`
-	Remark      string `json:"remark,optional"`
-	Status      string `json:"status,optional"`
+}
+
+type ConfigUpdateReq struct {
+	Items []ConfigUpdateItem `json:"items"`
 }
 
 type DictByCodeItem struct {
@@ -137,21 +139,7 @@ type DictByCodeResp struct {
 	Items []DictByCodeItem `json:"items"`
 }
 
-type DictCreateReq struct {
-	ParentId string `json:"parent_id,optional"`
-	DictCode string `json:"dict_code"`
-	Label    string `json:"label"`
-	Value    string `json:"value,optional"`
-	Sort     string `json:"sort,optional"`
-	Status   string `json:"status,optional"`
-	Remark   string `json:"remark,optional"`
-}
-
-type DictDetailReq struct {
-	Id string `form:"id"`
-}
-
-type DictItem struct {
+type DictInfo struct {
 	Id        string `json:"id"`
 	ParentId  string `json:"parent_id"`
 	DictCode  string `json:"dict_code"`
@@ -166,26 +154,74 @@ type DictItem struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-type DictPageReq struct {
+type DictItemCreateReq struct {
+	ParentId string `json:"parent_id"`
+	Label    string `json:"label"`
+	Value    string `json:"value"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+	Remark   string `json:"remark,optional"`
+}
+
+type DictItemDetailReq struct {
+	Id string `form:"id"`
+}
+
+type DictItemPageReq struct {
 	Page     string `form:"page"`
 	PageSize string `form:"page_size"`
-	ParentId string `form:"parent_id,optional"`
-	DictCode string `form:"dict_code,optional"`
+	ParentId string `form:"parent_id"`
 	Label    string `form:"label,optional"`
+	Value    string `form:"value,optional"`
 	Status   string `form:"status,optional"`
 }
 
-type DictPageResp struct {
-	Items    []DictItem `json:"items"`
+type DictItemPageResp struct {
+	Items    []DictInfo `json:"items"`
 	Page     string     `json:"page"`
 	PageSize string     `json:"page_size"`
 	Total    string     `json:"total"`
 }
 
-type DictUpdateReq struct {
+type DictItemUpdateReq struct {
 	Id     string `json:"id"`
 	Label  string `json:"label,optional"`
 	Value  string `json:"value,optional"`
+	Sort   string `json:"sort,optional"`
+	Status string `json:"status,optional"`
+	Remark string `json:"remark,optional"`
+}
+
+type DictTypeCreateReq struct {
+	DictCode string `json:"dict_code"`
+	Label    string `json:"label"`
+	Sort     string `json:"sort,optional"`
+	Status   string `json:"status,optional"`
+	Remark   string `json:"remark,optional"`
+}
+
+type DictTypeDetailReq struct {
+	Id string `form:"id"`
+}
+
+type DictTypePageReq struct {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	DictCode string `form:"dict_code,optional"`
+	Label    string `form:"label,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type DictTypePageResp struct {
+	Items    []DictInfo `json:"items"`
+	Page     string     `json:"page"`
+	PageSize string     `json:"page_size"`
+	Total    string     `json:"total"`
+}
+
+type DictTypeUpdateReq struct {
+	Id     string `json:"id"`
+	Label  string `json:"label,optional"`
 	Sort   string `json:"sort,optional"`
 	Status string `json:"status,optional"`
 	Remark string `json:"remark,optional"`

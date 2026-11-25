@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/jiangbyte/light-gozero/common/appcfg"
+	"github.com/jiangbyte/light-gozero/common/batchutil"
 )
 
 // Repo 系统配置数据访问。
@@ -56,6 +57,23 @@ func (r *Repo) FindByKey(ctx context.Context, key string) (*SysConfig, error) {
 		return nil, err
 	}
 	return &row, nil
+}
+
+// ListByKeys 按配置键批量加载。
+func (r *Repo) ListByKeys(ctx context.Context, keys []string) ([]SysConfig, error) {
+	keys = batchutil.UniqueStrings(keys)
+	if len(keys) == 0 {
+		return nil, nil
+	}
+	var list []SysConfig
+	for _, part := range batchutil.Chunk(keys, batchutil.InSize) {
+		var chunk []SysConfig
+		if err := r.withCtx(ctx).Where("config_key IN ?", part).Find(&chunk).Error; err != nil {
+			return nil, err
+		}
+		list = append(list, chunk...)
+	}
+	return list, nil
 }
 
 func (r *Repo) Page(ctx context.Context, groupName, configKey string, status int64, hasStatus bool, offset, limit int) ([]SysConfig, int64, error) {

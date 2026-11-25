@@ -34,11 +34,13 @@ type ConfigDetailReq {
 	ConfigKey string `form:"config_key,optional"`
 }
 
-type ConfigUpdateReq {
-	Id          string `json:"id"`
+type ConfigUpdateItem {
+	ConfigKey   string `json:"config_key"`
 	ConfigValue string `json:"config_value"`
-	Remark      string `json:"remark,optional"`
-	Status      string `json:"status,optional"`
+}
+
+type ConfigUpdateReq {
+	Items []ConfigUpdateItem `json:"items"`
 }
 
 type ConfigPublicItem {
