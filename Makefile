@@ -7,10 +7,13 @@ SYSTEM_DIR := $(ROOT)/service/system/api
 DEMO_DIR   := $(ROOT)/service/demoservice/api
 GOCTL      ?= $(shell go env GOPATH)/bin/goctl
 
+WEB_DIR := $(ROOT)/web/admin
+
 .PHONY: help tidy build test test-storage \
 	run-system run-demo run-demo-local \
 	smoke-system smoke-system-sec smoke-demo smoke-demo-s3 \
-	init-sql init-submodule gen-system-api gen-demo-api
+	init-sql init-submodule gen-system-api gen-demo-api \
+	web-install web-dev web-build
 
 help: ## 显示可用目标
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} \
@@ -49,8 +52,8 @@ smoke-demo: ## demoservice 文件上传统一冒烟（随 yaml Provider）
 smoke-demo-s3: ## 同 smoke-demo（兼容入口）
 	bash $(ROOT)/scripts/smoke_demoservice_file_s3.sh
 
-init-sql: ## 导入 UUIDv7 初始化 SQL（默认 docker mysql 容器名 mysql）
-	docker exec -i mysql mysql -uroot -p'infra123!' < $(ROOT)/deploy/sql/light_gozero_init_uuidv7.sql
+init-sql: ## 导入 UUIDv7 初始化 SQL（默认 docker mysql 容器名 mysql；务必 utf8mb4）
+	docker exec -i mysql mysql -uroot -p'infra123!' --default-character-set=utf8mb4 < $(ROOT)/deploy/sql/light_gozero_init_uuidv7.sql
 
 init-submodule: ## 初始化 .cursorrules submodule
 	cd $(ROOT) && git submodule update --init --recursive
@@ -60,3 +63,12 @@ gen-system-api: ## goctl 重新生成 system API（需本机 goctl）
 
 gen-demo-api: ## goctl 重新生成 demoservice API
 	cd $(DEMO_DIR) && $(GOCTL) api go -api demoservice.api -dir . --style go_zero
+
+web-install: ## 安装 web/admin 依赖
+	cd $(WEB_DIR) && npm install
+
+web-dev: ## 启动管理端前端（:8081，代理 /api → :8888）
+	cd $(WEB_DIR) && npm run dev
+
+web-build: ## 构建管理端前端
+	cd $(WEB_DIR) && npm run build

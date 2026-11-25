@@ -284,14 +284,14 @@ INSERT INTO sys_role (id, name, code, data_scope, remark, status, created_by, up
 INSERT INTO sys_resources
 (id, parent_id, name, type, perm_code, path, component_path, redirect, route_name, icon, hidden, keep_alive, affix, sort, status, created_by, updated_by)
 VALUES
-(@dir_system, '', '系统管理', 'directory', NULL, '/system', '', '/system/org', 'System', 'setting', 0, 0, 0, 1, 1, @sys, @sys),
-(@menu_org, @dir_system, '组织管理', 'menu', NULL, 'org', 'system/org/index', '', 'SystemOrg', 'office-building', 0, 1, 0, 1, 1, @sys, @sys),
-(@menu_user, @dir_system, '用户管理', 'menu', NULL, 'user', 'system/user/index', '', 'SystemUser', 'user', 0, 1, 0, 2, 1, @sys, @sys),
-(@menu_role, @dir_system, '角色管理', 'menu', NULL, 'role', 'system/role/index', '', 'SystemRole', 'peoples', 0, 1, 0, 3, 1, @sys, @sys),
-(@menu_res, @dir_system, '资源管理', 'menu', NULL, 'resource', 'system/resource/index', '', 'SystemResource', 'tree-table', 0, 1, 0, 4, 1, @sys, @sys),
-(@menu_audit, @dir_system, '审计日志', 'menu', NULL, 'audit', 'system/audit/index', '', 'SystemAudit', 'documentation', 0, 1, 0, 5, 1, @sys, @sys),
-(@menu_config, @dir_system, '系统配置', 'menu', NULL, 'config', 'system/config/index', '', 'SystemConfig', 'tool', 0, 1, 0, 6, 1, @sys, @sys),
-(@menu_dict, @dir_system, '字典管理', 'menu', NULL, 'dict', 'system/dict/index', '', 'SystemDict', 'collection', 0, 1, 0, 7, 1, @sys, @sys),
+(@dir_system, '', '系统管理', 'directory', NULL, '/system', '', '/system/org', 'System', 'SettingOutlined', 0, 0, 0, 1, 1, @sys, @sys),
+(@menu_org, @dir_system, '组织管理', 'menu', NULL, 'org', 'org/index', '', 'SystemOrg', 'ApartmentOutlined', 0, 1, 0, 1, 1, @sys, @sys),
+(@menu_user, @dir_system, '用户管理', 'menu', NULL, 'user', 'user/index', '', 'SystemUser', 'UserOutlined', 0, 1, 0, 2, 1, @sys, @sys),
+(@menu_role, @dir_system, '角色管理', 'menu', NULL, 'role', 'role/index', '', 'SystemRole', 'TeamOutlined', 0, 1, 0, 3, 1, @sys, @sys),
+(@menu_res, @dir_system, '资源管理', 'menu', NULL, 'resource', 'resource/index', '', 'SystemResource', 'ApartmentOutlined', 0, 1, 0, 4, 1, @sys, @sys),
+(@menu_audit, @dir_system, '审计日志', 'menu', NULL, 'audit', 'audit/index', '', 'SystemAudit', 'FileSearchOutlined', 0, 1, 0, 5, 1, @sys, @sys),
+(@menu_config, @dir_system, '系统配置', 'menu', NULL, 'config', 'config/index', '', 'SystemConfig', 'ToolOutlined', 0, 1, 0, 6, 1, @sys, @sys),
+(@menu_dict, @dir_system, '字典管理', 'menu', NULL, 'dict', 'dict/index', '', 'SystemDict', 'BookOutlined', 0, 1, 0, 7, 1, @sys, @sys),
 (@btn_org_c,  @menu_org, '组织创建', 'button', 'system:org:create', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
 (@btn_org_u,  @menu_org, '组织更新', 'button', 'system:org:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_org_d,  @menu_org, '组织删除', 'button', 'system:org:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),

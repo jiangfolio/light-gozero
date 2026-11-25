@@ -28,6 +28,7 @@
 - [目录结构](#目录结构)
 - [环境依赖](#环境依赖)
 - [快速开始](#快速开始)
+- [管理端前端](#管理端前端)
 - [配置说明](#配置说明)
 - [API 约定](#api-约定)
 - [AI 协作（ai-context）](#ai-协作ai-context)
@@ -80,6 +81,7 @@
 ├── common/                    # 跨服务公共库（authctx / errorx / rbac / pwdcipher / pageutil …）
 ├── deploy/sql/                # uuidv7 / auto_increment 初始化脚本
 ├── scripts/                   # HTTP 冒烟、安全用例、pwdenc
+├── web/admin/                 # 管理端（Vue3 + antdv-next，对接 system）
 └── service/
     ├── system/api/            # 系统底座（鉴权 / RBAC / 字典 / 配置 / 审计）
     │   ├── desc/              # .api 契约（auth org user role resource dict config audit）
@@ -111,19 +113,31 @@ git clone git@github.com:jiangfolio/light-gozero.git
 cd light-gozero
 git submodule update --init --recursive
 
-# 1. 初始化库表（UUIDv7 模式含种子数据）
-docker exec -i mysql mysql -uroot -p'infra123!' < deploy/sql/light_gozero_init_uuidv7.sql
-# 或本机：mysql -uroot -p'infra123!' < deploy/sql/light_gozero_init_uuidv7.sql
+# 0. 本地 Docker 启动 MySQL / Redis（容器名需为 mysql / redis，与冒烟脚本一致）
+docker start mysql redis 2>/dev/null || true
+# 若尚无容器：
+# docker run -d --name mysql \
+#   -e MYSQL_ROOT_PASSWORD='infra123!' -e MYSQL_DATABASE=light_gozero \
+#   -p 3306:3306 mysql:8 \
+#   --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+# docker run -d --name redis -p 6379:6379 redis:7 \
+#   redis-server --requirepass 'infra123!'
+
+# 1. 初始化库表（UUIDv7 模式含种子数据；可重复执行重置）
+docker exec -i mysql mysql -uroot -p'infra123!' --default-character-set=utf8mb4 < deploy/sql/light_gozero_init_uuidv7.sql
+# 若菜单中文乱码：灌库后清 Redis 缓存（rbac 会缓存资源树）
+docker exec redis redis-cli -a 'infra123!' --no-auth-warning FLUSHDB
 
 # 2. 启动 system
-cd service/system/api
-go run . -f etc/system.yaml
+make run-system
+# 或：cd service/system/api && go run . -f etc/system.yaml
 ```
 
 | 项 | 地址 |
 |----|------|
 | API | http://127.0.0.1:8888 |
 | Prometheus | http://127.0.0.1:9101/metrics |
+| 管理端 | http://127.0.0.1:8081 （见下节） |
 
 | 账号 | 密码 | 说明 |
 |------|------|------|
@@ -143,6 +157,30 @@ curl -s -X POST 'http://127.0.0.1:8888/api/v1/auth/login' \
 ```
 
 鉴权头为原始 Token：`Authorization: <token>`（不要加 `Bearer `）。
+
+## 管理端前端
+
+路径 [`web/admin`](web/admin)：Vue 3 + TypeScript + Vite + Pinia + **antdv-next**，对接 `system` `/api/v1`。
+
+```bash
+# 依赖已安装可跳过
+make web-install
+
+# 另开终端：system 需已在 :8888
+make web-dev
+# 浏览器打开 http://127.0.0.1:8081 ，账号 superadmin / Admin@123456
+```
+
+| 项 | 说明 |
+|----|------|
+| 开发代理 | Vite 将 `/api` 代理到 `http://127.0.0.1:8888`（无需 CORS） |
+| 登录 | 验证码 → 公钥 → SM2 密文密码 → Token（无 Bearer） |
+| 菜单 | `GET /user/resources` 动态路由；`component_path` 对应 `src/views/<path>.vue` |
+| 权限 | `v-privilege="'system:org:create'"` 等，对齐种子 `perm_code` |
+| 布局 | 侧边 / 侧边展开 / 顶部 / 顶部展开，页签可切换 |
+| 构建 | `make web-build` |
+
+第一期页面：登录、首页、个人中心、组织、用户、角色、资源、字典、配置、审计。
 
 ## 配置说明
 

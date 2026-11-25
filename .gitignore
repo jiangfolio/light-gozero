@@ -60,6 +60,8 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.template
+!web/admin/.env.development
+!web/admin/.env.production
 *.pem
 *.key
 *.cert
