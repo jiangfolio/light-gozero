@@ -2,7 +2,6 @@
 import { computed, h, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { useAppConfigStore } from '@/stores/app-config'
 import { resolveMenuFullPath, usePermissionStore } from '@/stores/permission'
 
@@ -24,7 +23,7 @@ type MenuItem = {
   children?: MenuItem[]
 }
 
-function toItems(nodes: ResourceNode[], parentPath = ''): MenuItem[] {
+function toItems(nodes: any[], parentPath = ''): MenuItem[] {
   return nodes.map((node) => {
     const fullPath = resolveMenuFullPath(node, parentPath)
     if (node.type === 'directory' && node.children?.length) {
@@ -47,7 +46,7 @@ const menuItems = computed<MenuItem[]>(() => [
   {
     key: '/home',
     label: '首页',
-    icon: () => h(MenuIcon, { name: 'Home' }),
+    icon: () => h(MenuIcon, { name: 'home' }),
   },
   ...toItems(permissionStore.menuTree),
 ])
@@ -57,7 +56,7 @@ const isDark = computed(() => appConfig.state.menuTheme === 'dark')
 
 function collectOpenKeys(path: string) {
   const keys: string[] = []
-  const walk = (nodes: ResourceNode[], parentPath: string) => {
+  const walk = (nodes: any[], parentPath: string) => {
     for (const n of nodes) {
       const full = resolveMenuFullPath(n, parentPath)
       if (path === full || path.startsWith(`${full}/`)) {

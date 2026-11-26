@@ -9,6 +9,8 @@ func ResultName(result string) string {
 		return "失败"
 	case "locked":
 		return "锁定"
+	case "logout":
+		return "登出"
 	default:
 		return result
 	}

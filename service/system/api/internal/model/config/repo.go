@@ -76,10 +76,34 @@ func (r *Repo) ListByKeys(ctx context.Context, keys []string) ([]SysConfig, erro
 	return list, nil
 }
 
-func (r *Repo) Page(ctx context.Context, groupName, configKey string, status int64, hasStatus bool, offset, limit int) ([]SysConfig, int64, error) {
+func (r *Repo) Page(ctx context.Context, groupName, configKey string, status int64, hasStatus bool, offset, limit int, excludeGroups ...string) ([]SysConfig, int64, error) {
 	q := r.withCtx(ctx).Model(&SysConfig{})
 	if groupName != "" {
 		q = q.Where("group_name = ?", groupName)
+	}
+	if len(excludeGroups) > 0 {
+		q = q.Where("group_name NOT IN ?", excludeGroups)
+	}
+	if configKey != "" {
+		q = q.Where("config_key LIKE ?", "%"+configKey+"%")
+	}
+	if hasStatus {
+		q = q.Where("status = ?", status)
+	}
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var list []SysConfig
+	err := q.Order("group_name asc, config_key asc").Offset(offset).Limit(limit).Find(&list).Error
+	return list, total, err
+}
+
+// PageByGroups 按分组列表分页（用于安全配置等专用入口）。
+func (r *Repo) PageByGroups(ctx context.Context, groups []string, configKey string, status int64, hasStatus bool, offset, limit int) ([]SysConfig, int64, error) {
+	q := r.withCtx(ctx).Model(&SysConfig{})
+	if len(groups) > 0 {
+		q = q.Where("group_name IN ?", groups)
 	}
 	if configKey != "" {
 		q = q.Where("config_key LIKE ?", "%"+configKey+"%")

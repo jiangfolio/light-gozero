@@ -1,46 +1,37 @@
 <script setup lang="ts">
 /**
- * 将种子里的 Ant Design 图标名映射到 IconPark 离线图标。
+ * 菜单 icon 字段存 IconPark outline 名（如 setting-two），按名取 SVG 渲染。
  */
-defineProps<{ name?: string; size?: number | string }>()
+import { computed } from 'vue'
 
-const alias: Record<string, string> = {
-  SettingOutlined: 'setting',
-  ApartmentOutlined: 'apartment',
-  UserOutlined: 'user',
-  TeamOutlined: 'team',
-  FileSearchOutlined: 'search',
-  ToolOutlined: 'tool',
-  BookOutlined: 'book',
-  Home: 'home',
-}
+import { resolveIconPark } from '@/lib/icon-park'
+
+const props = defineProps<{ name?: string; size?: number | string }>()
+
+const resolved = computed(() => resolveIconPark(props.name))
+
+const px = computed(() => {
+  const n = Number(props.size)
+  return Number.isFinite(n) && n > 0 ? n : 16
+})
 </script>
 
 <template>
-  <span class="menu-icon">
-    <IconParkSettingTwo v-if="(alias[name || ''] || name) === 'setting'" :size="size || 16" />
-    <IconParkBuildingOne
-      v-else-if="(alias[name || ''] || name) === 'apartment'"
-      :size="size || 16"
-    />
-    <IconParkUser v-else-if="(alias[name || ''] || name) === 'user'" :size="size || 16" />
-    <IconParkPeoples v-else-if="(alias[name || ''] || name) === 'team'" :size="size || 16" />
-    <IconParkFileSearch
-      v-else-if="(alias[name || ''] || name) === 'search'"
-      :size="size || 16"
-    />
-    <IconParkTool v-else-if="(alias[name || ''] || name) === 'tool'" :size="size || 16" />
-    <IconParkBookOpen v-else-if="(alias[name || ''] || name) === 'book'" :size="size || 16" />
-    <IconParkHome v-else-if="(alias[name || ''] || name) === 'home'" :size="size || 16" />
-    <IconParkApplicationOne v-else :size="size || 16" />
-  </span>
+  <svg
+    class="menu-icon"
+    xmlns="http://www.w3.org/2000/svg"
+    :width="px"
+    :height="px"
+    :viewBox="`0 0 ${resolved.w} ${resolved.h}`"
+    v-html="resolved.body"
+  />
 </template>
 
 <style scoped>
 .menu-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   vertical-align: middle;
+  flex-shrink: 0;
+  fill: currentColor;
 }
 </style>

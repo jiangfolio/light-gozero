@@ -11,7 +11,6 @@ import (
 	"github.com/jiangbyte/light-gozero/common/errorx"
 	"github.com/jiangbyte/light-gozero/common/operlog"
 	"github.com/jiangbyte/light-gozero/common/passwd"
-	"github.com/jiangbyte/light-gozero/common/perm"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model"
 	usermodel "github.com/jiangbyte/light-gozero/service/system/api/internal/model/user"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/svc"
@@ -28,17 +27,12 @@ func NewChangePasswordLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ch
 	return &ChangePasswordLogic{Logger: logx.WithContext(ctx), ctx: ctx, svcCtx: svcCtx}
 }
 
-// ChangePassword 自助改密：校验旧密、策略与历史，成功后吊销全部会话。
+// ChangePassword 自助改密：登录即可，校验旧密、策略与历史，成功后吊销全部会话。
 func (l *ChangePasswordLogic) ChangePassword(req *types.ChangePasswordReq) error {
-	// 1. 登录态；非强制改密时校验权限码
+	// 1. 仅要求登录态（账号共有能力，不走角色授权）
 	uid := authctx.UserId(l.ctx)
 	if uid == "" {
 		return errorx.New(401, "未登录或登录已失效")
-	}
-	if !authctx.MustChangePassword(l.ctx) {
-		if err := l.svcCtx.RbacGuard.Require(l.ctx, uid, perm.SystemAuthChangePassword); err != nil {
-			return err
-		}
 	}
 	if req.OldPassword == "" || req.NewPassword == "" {
 		return errorx.New(400, "旧密码和新密码不能为空")

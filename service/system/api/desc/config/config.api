@@ -54,6 +54,13 @@ type ConfigPublicResp {
 	Items []ConfigPublicItem `json:"items"`
 }
 
+type SecurityConfigPageReq {
+	Page      string `form:"page"`
+	PageSize  string `form:"page_size"`
+	ConfigKey string `form:"config_key,optional"`
+	Status    string `form:"status,optional"`
+}
+
 @server (
 	prefix: /api/v1
 	group:  config
@@ -77,4 +84,10 @@ service system {
 
 	@handler ConfigUpdate
 	post /config/update (ConfigUpdateReq)
+
+	@handler SecurityConfigPage
+	get /config/security/page (SecurityConfigPageReq) returns (ConfigPageResp)
+
+	@handler SecurityConfigUpdate
+	post /config/security/update (ConfigUpdateReq)
 }

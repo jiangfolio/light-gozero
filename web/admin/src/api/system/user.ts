@@ -1,27 +1,43 @@
 import { http } from '@/lib/http'
 
-export type ResourceNode = {
-  id: string
-  parent_id: string
-  name: string
-  type: string
-  perm_code: string
-  path: string
-  component_path: string
-  redirect: string
-  route_name: string
-  icon: string
-  hidden: string
-  keep_alive: string
-  affix: string
-  sort: string
-  status: string
-  children?: ResourceNode[]
+export function getUserResources() {
+  return http.get('/api/system/v1/user/resources') as Promise<any>
 }
 
-export function getUserResources() {
-  return http.get('/api/system/v1/user/resources') as Promise<{
-    resources: ResourceNode[]
-    perms: string[]
-  }>
+export function createUser(data: any) {
+  return http.post('/api/system/v1/user/create', data) as Promise<any>
+}
+
+export function updateUser(data: any) {
+  return http.post('/api/system/v1/user/update', data) as Promise<any>
+}
+
+export function unlockUser(id: any) {
+  return http.post('/api/system/v1/user/unlock', { id }) as Promise<any>
+}
+
+export function deleteUser(ids: any) {
+  return http.post('/api/system/v1/user/delete', { ids }) as Promise<any>
+}
+
+export function getUserDetail(id: any) {
+  return http.get('/api/system/v1/user/detail', { params: { id } }) as Promise<any>
+}
+
+export function pageUser(params: any) {
+  return http.get('/api/system/v1/user/page', { params }) as Promise<any>
+}
+
+export function bindUserRoles(userId: any, roleIds: any) {
+  return http.post('/api/system/v1/user/bind_roles', {
+    user_id: userId,
+    role_ids: roleIds,
+  }) as Promise<any>
+}
+
+export function unbindUserRoles(userId: any, roleIds: any) {
+  return http.post('/api/system/v1/user/unbind_roles', {
+    user_id: userId,
+    role_ids: roleIds,
+  }) as Promise<any>
 }

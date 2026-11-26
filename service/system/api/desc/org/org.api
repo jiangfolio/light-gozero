@@ -49,6 +49,30 @@ type OrgPageResp {
 	Total    string    `json:"total"`
 }
 
+type OrgTreeReq {
+	Name   string `form:"name,optional"`
+	Code   string `form:"code,optional"`
+	Status string `form:"status,optional"`
+}
+
+type OrgNode {
+	Id        string    `json:"id"`
+	ParentId  string    `json:"parent_id"`
+	Name      string    `json:"name"`
+	Code      string    `json:"code"`
+	Sort      string    `json:"sort"`
+	Status    string    `json:"status"`
+	CreatedBy string    `json:"created_by"`
+	UpdatedBy string    `json:"updated_by"`
+	CreatedAt string    `json:"created_at"`
+	UpdatedAt string    `json:"updated_at"`
+	Children  []OrgNode `json:"children"`
+}
+
+type OrgTreeResp {
+	Items []OrgNode `json:"items"`
+}
+
 @server (
 	prefix:     /api/v1
 	group:      org
@@ -69,4 +93,7 @@ service system {
 
 	@handler OrgPage
 	get /org/page (OrgPageReq) returns (OrgPageResp)
+
+	@handler OrgTree
+	get /org/tree (OrgTreeReq) returns (OrgTreeResp)
 }

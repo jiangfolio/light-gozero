@@ -170,6 +170,16 @@ func (r *Repo) ListOrgIdsByRoleId(ctx context.Context, roleId string) ([]string,
 	return ids, err
 }
 
+// ListResourceIdsByRoleId 列出角色已绑定资源 ID（详情回显勾选）。
+func (r *Repo) ListResourceIdsByRoleId(ctx context.Context, roleId string) ([]string, error) {
+	if roleId == "" {
+		return nil, nil
+	}
+	var ids []string
+	err := r.withCtx(ctx).Model(&RelRoleResource{}).Where("role_id = ?", roleId).Pluck("resource_id", &ids).Error
+	return ids, err
+}
+
 // ListOrgIdsByRoleIds 批量列出角色指定部门，返回 roleId -> orgIds。
 func (r *Repo) ListOrgIdsByRoleIds(ctx context.Context, roleIds []string) (map[string][]string, error) {
 	roleIds = batchutil.UniqueStrings(roleIds)

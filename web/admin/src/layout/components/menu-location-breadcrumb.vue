@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { resolveMenuFullPath, usePermissionStore } from '@/stores/permission'
 
 const route = useRoute()
@@ -16,7 +15,7 @@ const crumbs = computed<Crumb[]>(() => {
   if (route.path === '/home') return result
 
   const matched: Crumb[] = []
-  const walk = (nodes: ResourceNode[], parentPath: string) => {
+  const walk = (nodes: any[], parentPath: string) => {
     for (const n of nodes) {
       const full = resolveMenuFullPath(n, parentPath)
       if (route.path === full || route.path.startsWith(`${full}/`)) {

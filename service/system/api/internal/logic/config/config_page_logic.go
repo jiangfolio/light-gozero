@@ -42,7 +42,12 @@ func (l *ConfigPageLogic) ConfigPage(req *types.ConfigPageReq) (resp *types.Conf
 		}
 		hasStatus = true
 	}
-	list, total, err := l.svcCtx.Repo.Config.Page(l.ctx, req.GroupName, req.ConfigKey, status, hasStatus, pageutil.Offset(page, pageSize), pageSize)
+	// 系统配置入口排除网络安全相关分组（auth/captcha），由安全配置专用接口管理
+	list, total, err := l.svcCtx.Repo.Config.Page(
+		l.ctx, req.GroupName, req.ConfigKey, status, hasStatus,
+		pageutil.Offset(page, pageSize), pageSize,
+		SecurityConfigGroups...,
+	)
 	if err != nil {
 		return nil, err
 	}

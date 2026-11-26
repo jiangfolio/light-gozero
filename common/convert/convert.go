@@ -83,9 +83,12 @@ func ParseFlag(s string, def int64) (int64, error) {
 	return v, nil
 }
 
-// TimeToString 出站时间统一 RFC3339Nano。
+// TimeToString 出站时间统一为「2006-01-02 15:04:05」；零值返回空串。
 func TimeToString(t time.Time) string {
-	return t.Format(time.RFC3339Nano)
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format("2006-01-02 15:04:05")
 }
 
 // DerefString 解引用字符串指针；nil 返回空串。

@@ -177,7 +177,7 @@ CREATE TABLE sys_login_log (
     username   VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '登录用户名',
     ip         VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '客户端IP',
     user_agent VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'User-Agent',
-    result     VARCHAR(16)  NOT NULL DEFAULT '' COMMENT '结果：success/fail/locked',
+    result     VARCHAR(16)  NOT NULL DEFAULT '' COMMENT '结果：success/fail/locked/logout',
     message    VARCHAR(255) NOT NULL DEFAULT '' COMMENT '说明',
     created_at DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
     PRIMARY KEY (id),
@@ -209,7 +209,11 @@ SET @user_id = '01a20d49-091b-7f26-8236-e46ad26cd830';
 SET @role_id = '01a20d49-091b-7f2c-ad6c-4d9d2222b2e7';
 SET @sys     = '';
 
-SET @dir_system = '01a20d49-091b-7f33-afd9-74ff62926f39';
+SET @dir_system   = '01a20d49-091b-7f33-afd9-74ff62926f39';
+SET @dir_security = '01a20d49-091d-7001-8000-00000000002c';
+SET @menu_security_config = '01a20d49-091d-7001-8000-00000000002d';
+SET @btn_security_config_p = '01a20d49-091d-7001-8000-00000000002e';
+SET @btn_security_config_u = '01a20d49-091d-7001-8000-00000000002f';
 SET @menu_org   = '01a20d49-091b-7f3a-9157-8a8c86989648';
 SET @menu_user  = '01a20d49-091c-7002-9aa7-9ed1f5242eef';
 SET @menu_role  = '01a20d49-091c-7009-9d34-5addbf69039b';
@@ -220,6 +224,7 @@ SET @btn_org_u  = '01a20d49-091c-701b-824a-9b1ad60fa564';
 SET @btn_org_d  = '01a20d49-091c-7021-bac7-c24bf6dbbfce';
 SET @btn_org_dt = '01a20d49-091c-702a-95f2-7c819f922b76';
 SET @btn_org_p  = '01a20d49-091c-7030-ba04-676a5504132b';
+SET @btn_org_t  = '01a20d49-091d-7001-8000-00000000002a';
 
 SET @btn_user_c  = '01a20d49-091c-7037-8037-a316dfb97eaf';
 SET @btn_user_u  = '01a20d49-091c-703c-a1ef-fdac03682c63';
@@ -243,11 +248,12 @@ SET @btn_res_u  = '01a20d49-091d-7001-8000-000000000005';
 SET @btn_res_d  = '01a20d49-091d-7001-8000-000000000006';
 SET @btn_res_dt = '01a20d49-091d-7001-8000-000000000007';
 SET @btn_res_p  = '01a20d49-091d-7001-8000-000000000008';
-SET @btn_auth_logout = '01a20d49-091d-7001-8000-000000000009';
-SET @btn_auth_cp = '01a20d49-091d-7001-8000-00000000000b';
-SET @menu_audit = '01a20d49-091d-7001-8000-00000000000c';
+SET @btn_res_l  = '01a20d49-091d-7001-8000-000000000031';
+SET @btn_res_t  = '01a20d49-091d-7001-8000-00000000002b';
+SET @menu_audit_login = '01a20d49-091d-7001-8000-00000000000c';
 SET @btn_audit_login = '01a20d49-091d-7001-8000-00000000000d';
 SET @btn_audit_oper = '01a20d49-091d-7001-8000-00000000000e';
+SET @menu_audit_oper = '01a20d49-091d-7001-8000-000000000029';
 SET @menu_config = '01a20d49-091d-7001-8000-00000000000f';
 SET @btn_config_p = '01a20d49-091d-7001-8000-000000000010';
 SET @btn_config_dt = '01a20d49-091d-7001-8000-000000000011';
@@ -284,19 +290,25 @@ INSERT INTO sys_role (id, name, code, data_scope, remark, status, created_by, up
 INSERT INTO sys_resources
 (id, parent_id, name, type, perm_code, path, component_path, redirect, route_name, icon, hidden, keep_alive, affix, sort, status, created_by, updated_by)
 VALUES
-(@dir_system, '', '系统管理', 'directory', NULL, '/system', '', '/system/org', 'System', 'SettingOutlined', 0, 0, 0, 1, 1, @sys, @sys),
-(@menu_org, @dir_system, '组织管理', 'menu', NULL, 'org', 'org/index', '', 'SystemOrg', 'ApartmentOutlined', 0, 1, 0, 1, 1, @sys, @sys),
-(@menu_user, @dir_system, '用户管理', 'menu', NULL, 'user', 'user/index', '', 'SystemUser', 'UserOutlined', 0, 1, 0, 2, 1, @sys, @sys),
-(@menu_role, @dir_system, '角色管理', 'menu', NULL, 'role', 'role/index', '', 'SystemRole', 'TeamOutlined', 0, 1, 0, 3, 1, @sys, @sys),
-(@menu_res, @dir_system, '资源管理', 'menu', NULL, 'resource', 'resource/index', '', 'SystemResource', 'ApartmentOutlined', 0, 1, 0, 4, 1, @sys, @sys),
-(@menu_audit, @dir_system, '审计日志', 'menu', NULL, 'audit', 'audit/index', '', 'SystemAudit', 'FileSearchOutlined', 0, 1, 0, 5, 1, @sys, @sys),
-(@menu_config, @dir_system, '系统配置', 'menu', NULL, 'config', 'config/index', '', 'SystemConfig', 'ToolOutlined', 0, 1, 0, 6, 1, @sys, @sys),
-(@menu_dict, @dir_system, '字典管理', 'menu', NULL, 'dict', 'dict/index', '', 'SystemDict', 'BookOutlined', 0, 1, 0, 7, 1, @sys, @sys),
+(@dir_system, '', '系统管理', 'directory', NULL, '/system', '', '/system/org', 'System', 'setting-two', 0, 0, 0, 1, 1, @sys, @sys),
+(@dir_security, '', '网络安全', 'directory', NULL, '/security', '', '/security/config', 'Security', 'protect', 0, 0, 0, 2, 1, @sys, @sys),
+(@menu_org, @dir_system, '组织管理', 'menu', NULL, 'org', 'org/index', '', 'SystemOrg', 'building-one', 0, 1, 0, 1, 1, @sys, @sys),
+(@menu_user, @dir_system, '用户管理', 'menu', NULL, 'user', 'user/index', '', 'SystemUser', 'user', 0, 1, 0, 2, 1, @sys, @sys),
+(@menu_role, @dir_system, '角色管理', 'menu', NULL, 'role', 'role/index', '', 'SystemRole', 'peoples', 0, 1, 0, 3, 1, @sys, @sys),
+(@menu_res, @dir_system, '资源管理', 'menu', NULL, 'resource', 'resource/index', '', 'SystemResource', 'building-one', 0, 1, 0, 4, 1, @sys, @sys),
+(@menu_config, @dir_system, '系统配置', 'menu', NULL, 'config', 'config/index', '', 'SystemConfig', 'tool', 0, 1, 0, 5, 1, @sys, @sys),
+(@menu_dict, @dir_system, '字典管理', 'menu', NULL, 'dict', 'dict/index', '', 'SystemDict', 'book-open', 0, 1, 0, 6, 1, @sys, @sys),
+(@menu_security_config, @dir_security, '安全配置', 'menu', NULL, 'config', 'security/config/index', '', 'SecurityConfig', 'protect', 0, 1, 0, 1, 1, @sys, @sys),
+(@menu_audit_login, @dir_security, '登录日志', 'menu', NULL, 'login-log', 'audit/login/index', '', 'SecurityLoginLog', 'file-search', 0, 1, 0, 2, 1, @sys, @sys),
+(@menu_audit_oper, @dir_security, '操作日志', 'menu', NULL, 'oper-log', 'audit/oper/index', '', 'SecurityOperLog', 'file-search', 0, 1, 0, 3, 1, @sys, @sys),
+(@btn_security_config_p, @menu_security_config, '安全配置分页', 'button', 'system:security_config:page', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
+(@btn_security_config_u, @menu_security_config, '安全配置更新', 'button', 'system:security_config:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_org_c,  @menu_org, '组织创建', 'button', 'system:org:create', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
 (@btn_org_u,  @menu_org, '组织更新', 'button', 'system:org:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_org_d,  @menu_org, '组织删除', 'button', 'system:org:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),
 (@btn_org_dt, @menu_org, '组织详情', 'button', 'system:org:detail', '', '', '', '', '', 1, 0, 0, 4, 1, @sys, @sys),
 (@btn_org_p,  @menu_org, '组织分页', 'button', 'system:org:page', '', '', '', '', '', 1, 0, 0, 5, 1, @sys, @sys),
+(@btn_org_t,  @menu_org, '组织树', 'button', 'system:org:tree', '', '', '', '', '', 1, 0, 0, 6, 1, @sys, @sys),
 (@btn_user_c,  @menu_user, '用户创建', 'button', 'system:user:create', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
 (@btn_user_u,  @menu_user, '用户更新', 'button', 'system:user:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_user_d,  @menu_user, '用户删除', 'button', 'system:user:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),
@@ -317,10 +329,10 @@ VALUES
 (@btn_res_d,  @menu_res, '资源删除', 'button', 'system:resource:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),
 (@btn_res_dt, @menu_res, '资源详情', 'button', 'system:resource:detail', '', '', '', '', '', 1, 0, 0, 4, 1, @sys, @sys),
 (@btn_res_p,  @menu_res, '资源分页', 'button', 'system:resource:page', '', '', '', '', '', 1, 0, 0, 5, 1, @sys, @sys),
-(@btn_auth_logout, '', '注销登录', 'button', 'system:auth:logout', '', '', '', '', '', 1, 0, 0, 0, 1, @sys, @sys),
-(@btn_auth_cp, '', '修改密码', 'button', 'system:auth:change_password', '', '', '', '', '', 1, 0, 0, 0, 1, @sys, @sys),
-(@btn_audit_login, @menu_audit, '登录日志分页', 'button', 'system:audit:login_page', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
-(@btn_audit_oper, @menu_audit, '操作日志分页', 'button', 'system:audit:oper_page', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
+(@btn_res_l,  @menu_res, '资源列表', 'button', 'system:resource:list', '', '', '', '', '', 1, 0, 0, 6, 1, @sys, @sys),
+(@btn_res_t,  @menu_res, '资源树', 'button', 'system:resource:tree', '', '', '', '', '', 1, 0, 0, 7, 1, @sys, @sys),
+(@btn_audit_login, @menu_audit_login, '登录日志分页', 'button', 'system:audit:login_page', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
+(@btn_audit_oper, @menu_audit_oper, '操作日志分页', 'button', 'system:audit:oper_page', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
 (@btn_config_p,  @menu_config, '配置分页', 'button', 'system:config:page', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
 (@btn_config_dt, @menu_config, '配置详情', 'button', 'system:config:detail', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_config_u,  @menu_config, '配置更新', 'button', 'system:config:update', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),

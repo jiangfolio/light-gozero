@@ -21,15 +21,22 @@ type UserDetailReq {
 }
 
 type UserItem {
-	Id        string `json:"id"`
-	OrgId     string `json:"org_id"`
-	Username  string `json:"username"`
-	Nickname  string `json:"nickname"`
-	Status    string `json:"status"`
-	CreatedBy string `json:"created_by"`
-	UpdatedBy string `json:"updated_by"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
+	Id          string   `json:"id"`
+	OrgId       string   `json:"org_id"`
+	Username    string   `json:"username"`
+	Nickname    string   `json:"nickname"`
+	Status      string   `json:"status"`
+	FailCount   string   `json:"fail_count"`
+	LockedUntil string   `json:"locked_until"`
+	RoleIds     []string `json:"role_ids"`
+	CreatedBy   string   `json:"created_by"`
+	UpdatedBy   string   `json:"updated_by"`
+	CreatedAt   string   `json:"created_at"`
+	UpdatedAt   string   `json:"updated_at"`
+}
+
+type UserUnlockReq {
+	Id string `json:"id"`
 }
 
 type UserPageReq {
@@ -91,6 +98,9 @@ service system {
 
 	@handler UserUpdate
 	post /user/update (UserUpdateReq)
+
+	@handler UserUnlock
+	post /user/unlock (UserUnlockReq)
 
 	@handler UserDelete
 	post /user/delete (IdsReq)

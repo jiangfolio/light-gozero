@@ -12,4 +12,42 @@
     margin: 0;
     @apply bg-[#f0f2f5];
   }
+
+  /* 全局细淡滚动条（Firefox） */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ant-color-text-quaternary, rgba(0, 0, 0, 0.22)) transparent;
+  }
+
+  /* 全局细淡滚动条（Chromium / WebKit） */
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--ant-color-text-quaternary, rgba(0, 0, 0, 0.22));
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--ant-color-text-tertiary, rgba(0, 0, 0, 0.35));
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* 弹窗：遮罩层不滚动整页弹窗；内容滚动由 body maxHeight 承担 */
+  .ant-modal-wrap {
+    overflow: hidden;
+  }
+
+  .ant-modal-body {
+    overscroll-behavior: contain;
+  }
 }

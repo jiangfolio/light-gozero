@@ -16,6 +16,18 @@ const themeConfig = computed(() => ({
   },
 }))
 
+/** 全局弹窗：垂直居中；内容区定高纵向滚动；禁止横向滚动（Row gutter 负边距易撑出） */
+const modalConfig = {
+  centered: true,
+  styles: {
+    body: {
+      maxHeight: 'calc(100vh - 200px)',
+      overflowX: 'hidden' as const,
+      overflowY: 'auto' as const,
+    },
+  },
+}
+
 watchEffect(() => {
   const root = document.documentElement
   root.style.setProperty('--app-primary', appConfig.state.themeColor)
@@ -26,7 +38,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <AConfigProvider :locale="zhCN" :theme="themeConfig">
+  <AConfigProvider :locale="zhCN" :theme="themeConfig" :modal="modalConfig">
     <router-view />
   </AConfigProvider>
 </template>

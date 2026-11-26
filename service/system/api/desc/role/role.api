@@ -24,17 +24,18 @@ type RoleDetailReq {
 }
 
 type RoleItem {
-	Id        string   `json:"id"`
-	Name      string   `json:"name"`
-	Code      string   `json:"code"`
-	DataScope string   `json:"data_scope"`
-	OrgIds    []string `json:"org_ids"`
-	Remark    string   `json:"remark"`
-	Status    string   `json:"status"`
-	CreatedBy string   `json:"created_by"`
-	UpdatedBy string   `json:"updated_by"`
-	CreatedAt string   `json:"created_at"`
-	UpdatedAt string   `json:"updated_at"`
+	Id          string   `json:"id"`
+	Name        string   `json:"name"`
+	Code        string   `json:"code"`
+	DataScope   string   `json:"data_scope"`
+	OrgIds      []string `json:"org_ids"`
+	ResourceIds []string `json:"resource_ids"`
+	Remark      string   `json:"remark"`
+	Status      string   `json:"status"`
+	CreatedBy   string   `json:"created_by"`
+	UpdatedBy   string   `json:"updated_by"`
+	CreatedAt   string   `json:"created_at"`
+	UpdatedAt   string   `json:"updated_at"`
 }
 
 type RolePageReq {

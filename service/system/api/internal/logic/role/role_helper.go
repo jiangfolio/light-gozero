@@ -25,13 +25,17 @@ func parseDataScope(raw string, def int64) (int64, error) {
 	}
 }
 
-func toRoleItem(role *rolemodel.SysRole, orgIds []string) *types.RoleItem {
+func toRoleItem(role *rolemodel.SysRole, orgIds []string, resourceIds ...[]string) *types.RoleItem {
 	if orgIds == nil {
 		orgIds = []string{}
 	}
+	resIds := []string{}
+	if len(resourceIds) > 0 && resourceIds[0] != nil {
+		resIds = resourceIds[0]
+	}
 	return &types.RoleItem{
 		Id: role.Id, Name: role.Name, Code: role.Code,
-		DataScope: convert.Int64ToString(role.DataScope), OrgIds: orgIds,
+		DataScope: convert.Int64ToString(role.DataScope), OrgIds: orgIds, ResourceIds: resIds,
 		Remark: role.Remark, Status: convert.Int64ToString(role.Status),
 		CreatedBy: role.CreatedBy, UpdatedBy: role.UpdatedBy,
 		CreatedAt: convert.TimeToString(role.CreatedAt), UpdatedAt: convert.TimeToString(role.UpdatedAt),

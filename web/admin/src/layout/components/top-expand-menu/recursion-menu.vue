@@ -2,7 +2,6 @@
 import { computed, h, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { useAppConfigStore } from '@/stores/app-config'
 import { resolveMenuFullPath } from '@/stores/permission'
 
@@ -22,7 +21,7 @@ const topMenu = selectedTopMenu
 const openKeys = ref<string[]>([])
 
 const showSecond = computed(
-  () => Boolean(topMenu.value?.children?.some((c) => c.type === 'menu' || c.type === 'directory')),
+  () => Boolean(topMenu.value?.children?.some((c: any) => c.type === 'menu' || c.type === 'directory')),
 )
 
 watch(
@@ -40,7 +39,7 @@ type MenuItem = {
   children?: MenuItem[]
 }
 
-function toItems(nodes: ResourceNode[], parentPath: string): MenuItem[] {
+function toItems(nodes: any[], parentPath: string): MenuItem[] {
   return nodes
     .filter((n) => n.type === 'menu' || n.type === 'directory')
     .map((node) => {
@@ -78,8 +77,8 @@ watch(
       return
     }
     openKeys.value = (menu.children || [])
-      .filter((c) => c.type === 'directory')
-      .map((c) => `dir:${c.id}`)
+      .filter((c: any) => c.type === 'directory')
+      .map((c: any) => `dir:${c.id}`)
   },
   { immediate: true },
 )

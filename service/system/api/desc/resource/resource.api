@@ -66,6 +66,7 @@ type ResourcePageReq {
 	PageSize string `form:"page_size"`
 	Name     string `form:"name,optional"`
 	Type     string `form:"type,optional"`
+	ParentId string `form:"parent_id,optional"`
 	Status   string `form:"status,optional"`
 }
 
@@ -74,6 +75,51 @@ type ResourcePageResp {
 	Page     string         `json:"page"`
 	PageSize string         `json:"page_size"`
 	Total    string         `json:"total"`
+}
+
+// ResourceListReq 按父节点一次性拉子资源（如菜单下按钮）；必须带 parent_id，避免全表。
+type ResourceListReq {
+	ParentId string `form:"parent_id"`
+	Type     string `form:"type,optional"`
+	Name     string `form:"name,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type ResourceListResp {
+	Items []ResourceItem `json:"items"`
+}
+
+type ResourceTreeReq {
+	Name   string `form:"name,optional"`
+	Type   string `form:"type,optional"`
+	Status string `form:"status,optional"`
+}
+
+type ResourceTreeNode {
+	Id            string             `json:"id"`
+	ParentId      string             `json:"parent_id"`
+	Name          string             `json:"name"`
+	Type          string             `json:"type"`
+	PermCode      string             `json:"perm_code"`
+	Path          string             `json:"path"`
+	ComponentPath string             `json:"component_path"`
+	Redirect      string             `json:"redirect"`
+	RouteName     string             `json:"route_name"`
+	Icon          string             `json:"icon"`
+	Hidden        string             `json:"hidden"`
+	KeepAlive     string             `json:"keep_alive"`
+	Affix         string             `json:"affix"`
+	Sort          string             `json:"sort"`
+	Status        string             `json:"status"`
+	CreatedBy     string             `json:"created_by"`
+	UpdatedBy     string             `json:"updated_by"`
+	CreatedAt     string             `json:"created_at"`
+	UpdatedAt     string             `json:"updated_at"`
+	Children      []ResourceTreeNode `json:"children"`
+}
+
+type ResourceTreeResp {
+	Items []ResourceTreeNode `json:"items"`
 }
 
 @server (
@@ -96,4 +142,10 @@ service system {
 
 	@handler ResourcePage
 	get /resource/page (ResourcePageReq) returns (ResourcePageResp)
+
+	@handler ResourceList
+	get /resource/list (ResourceListReq) returns (ResourceListResp)
+
+	@handler ResourceTree
+	get /resource/tree (ResourceTreeReq) returns (ResourceTreeResp)
 }

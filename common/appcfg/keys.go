@@ -2,15 +2,15 @@ package appcfg
 
 // 配置键与默认值（库无行或停用时回退）。
 const (
-	KeyTokenTTLSeconds      = "auth.token_ttl_seconds"
-	KeyMaxFailAttempts      = "auth.max_fail_attempts"
-	KeyLockMinutes          = "auth.lock_minutes"
-	KeyPasswordMinLen             = "auth.password_min_len"
-	KeyPasswordComplexityEnabled  = "auth.password_complexity_enabled"
-	KeyPasswordExpireDays         = "auth.password_expire_days"
-	KeyPasswordHistoryCount       = "auth.password_history_count"
-	KeyCaptchaTTLSeconds          = "captcha.ttl_seconds"
-	KeyCaptchaLength              = "captcha.length"
+	KeyTokenTTLSeconds           = "auth.token_ttl_seconds"
+	KeyMaxFailAttempts           = "auth.max_fail_attempts"
+	KeyLockMinutes               = "auth.lock_minutes"
+	KeyPasswordMinLen            = "auth.password_min_len"
+	KeyPasswordComplexityEnabled = "auth.password_complexity_enabled"
+	KeyPasswordExpireDays        = "auth.password_expire_days"
+	KeyPasswordHistoryCount      = "auth.password_history_count"
+	KeyCaptchaTTLSeconds         = "captcha.ttl_seconds"
+	KeyCaptchaLength             = "captcha.length"
 )
 
 const (

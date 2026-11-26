@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
+
+import { tableScrollX, withEllipsisColumns } from '@/lib/table'
 
 /**
  * 内容卡片：工具栏（左操作/右工具）+ 表体滚动区 + 独立分页脚部。
  * 卡片高度由页面 flex 布局撑满剩余空间，不随内容变化；只有表体滚动。
- * 表格属性（columns/dataSource/loading/rowKey/scroll 等）经 $attrs 透传给内部 ATable。
- * 分页器与表格完全解耦：由本组件以独立脚部渲染，不使用 ATable 自带分页。
+ * 表格属性经 attrs 透传；列默认开启 ellipsis，scroll.x 按列宽求和。
  */
 defineOptions({ inheritAttrs: false })
 
@@ -25,6 +26,7 @@ const emit = defineEmits<{
   change: [current: number, pageSize: number]
 }>()
 
+const attrs = useAttrs()
 const bodyRef = ref<HTMLElement>()
 
 /* 表头吸顶到卡片自己的滚动容器，而非 window */
@@ -32,7 +34,27 @@ const stickyConfig = computed(() => ({
   getContainer: () => bodyRef.value as HTMLElement,
 }))
 
-/* 页码/每页条数双向绑定的中转：未传时使用默认值，保证分页器可控 */
+/** 文本列默认 ellipsis；操作列 / 显式配置保持原样 */
+const tableColumns = computed(() => withEllipsisColumns(((attrs.columns as any[]) ?? []) as any[]))
+
+/**
+ * max-content 会按内容撑开列宽导致省略失效；
+ * 改为列宽求和，横向滚动与单行省略同时生效。
+ */
+const tableScroll = computed(() => {
+  const scroll = (attrs.scroll as Record<string, unknown> | undefined) ?? {}
+  if (scroll.x != null && scroll.x !== 'max-content') return scroll
+  return { ...scroll, x: tableScrollX(tableColumns.value) }
+})
+
+/** 去掉已单独处理的 columns/scroll，避免覆盖 */
+const tableBind = computed(() => {
+  const rest: Record<string, unknown> = { ...attrs }
+  delete rest.columns
+  delete rest.scroll
+  return rest
+})
+
 const currentPage = computed({
   get: () => props.current ?? 1,
   set: (value: number) => emit('update:current', value),
@@ -42,7 +64,6 @@ const currentPageSize = computed({
   set: (value: number) => emit('update:pageSize', value),
 })
 
-/** 页码变化与每页条数变化都统一抛 change，页面只需监听一个事件 */
 function onPageChange(page: number, size: number) {
   emit('change', page, size)
 }
@@ -62,7 +83,14 @@ const showTotal = (t: number) => `共 ${t} 条`
     </div>
 
     <div ref="bodyRef" class="page-table-body">
-      <ATable v-bind="$attrs" :sticky="stickyConfig" :pagination="false">
+      <ATable
+        v-bind="tableBind"
+        :columns="tableColumns"
+        :scroll="tableScroll"
+        :sticky="stickyConfig"
+        :pagination="false"
+        table-layout="fixed"
+      >
         <template v-for="(_, name) in $slots" :key="name" #[name]="slotProps">
           <slot :name="name" v-bind="slotProps ?? {}" />
         </template>
@@ -98,6 +126,15 @@ const showTotal = (t: number) => `共 ${t} 条`
     min-height: 0;
     padding: 12px;
   }
+
+  /* 兜底省略；自定义 bodyCell 请包 EllipsisText */
+  :deep(.ant-table-cell-ellipsis),
+  :deep(.ant-table-cell-ellipsis .ant-table-cell-content) {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+  }
 }
 
 .page-table-toolbar {
@@ -120,14 +157,12 @@ const showTotal = (t: number) => `共 ${t} 条`
   }
 }
 
-/* 唯一滚动区：表格内容；表头经 sticky 吸附在此容器顶部 */
 .page-table-body {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
 
-/* 分页器独立于表格：固定在卡片底部，以分隔线与表体划开 */
 .page-table-footer {
   display: flex;
   flex-shrink: 0;

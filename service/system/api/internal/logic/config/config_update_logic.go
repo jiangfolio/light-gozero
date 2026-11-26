@@ -68,8 +68,13 @@ func (l *ConfigUpdateLogic) ConfigUpdate(req *types.ConfigUpdateReq) error {
 		rowByKey[rows[i].ConfigKey] = &rows[i]
 	}
 	for _, key := range keys {
-		if _, ok := rowByKey[key]; !ok {
+		row, ok := rowByKey[key]
+		if !ok {
 			return errorx.New(404, "配置不存在："+key)
+		}
+		// 安全分组须走 /config/security/update
+		if isSecurityConfigGroup(row.GroupName) {
+			return errorx.New(403, "安全配置请使用安全配置接口更新："+key)
 		}
 	}
 

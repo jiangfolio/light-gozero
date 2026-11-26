@@ -176,6 +176,16 @@ where rr.resource_id in ?`, part).Scan(&chunk).Error
 	return batchutil.UniqueStrings(ids), nil
 }
 
+// ListRoleIdsByUserId 列出用户已绑定角色 ID（详情回显勾选）。
+func (r *Repo) ListRoleIdsByUserId(ctx context.Context, userId string) ([]string, error) {
+	if userId == "" {
+		return nil, nil
+	}
+	var ids []string
+	err := r.withCtx(ctx).Model(&RelUserRole{}).Where("user_id = ?", userId).Pluck("role_id", &ids).Error
+	return ids, err
+}
+
 func (r *Repo) BindRoles(ctx context.Context, rows []RelUserRole) error {
 	if len(rows) == 0 {
 		return nil

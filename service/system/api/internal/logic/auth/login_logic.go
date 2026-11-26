@@ -69,10 +69,15 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 
 	// 5. 校验密码；失败累计并可能锁定
 	if !passwd.Match(user.PasswordHash, plainPwd) {
-		if err := l.onPasswordFail(user, now); err != nil {
+		locked, err := l.onPasswordFail(user, now)
+		if err != nil {
 			return nil, err
 		}
-		l.writeLoginLog(user.Id, user.Username, "fail", "用户名或密码错误", ip, ua)
+		if locked {
+			l.writeLoginLog(user.Id, user.Username, "locked", "连续登录失败，账号已锁定", ip, ua)
+		} else {
+			l.writeLoginLog(user.Id, user.Username, "fail", "用户名或密码错误", ip, ua)
+		}
 		return nil, errorx.New(401, "用户名或密码错误")
 	}
 
@@ -107,7 +112,8 @@ func (l *LoginLogic) Login(req *types.LoginReq) (resp *types.LoginResp, err erro
 	}, nil
 }
 
-func (l *LoginLogic) onPasswordFail(user *usermodel.SysUser, now time.Time) error {
+// onPasswordFail 累计失败次数；达到阈值则锁定并返回 locked=true。
+func (l *LoginLogic) onPasswordFail(user *usermodel.SysUser, now time.Time) (locked bool, err error) {
 	maxFail := l.svcCtx.AppConfig.GetInt(l.ctx, appcfg.KeyMaxFailAttempts, appcfg.DefaultMaxFailAttempts)
 	if maxFail <= 0 {
 		maxFail = appcfg.DefaultMaxFailAttempts
@@ -120,8 +126,9 @@ func (l *LoginLogic) onPasswordFail(user *usermodel.SysUser, now time.Time) erro
 	if int(user.FailCount) >= maxFail {
 		until := now.Add(time.Duration(lockMin) * time.Minute)
 		user.LockedUntil = &until
+		locked = true
 	}
-	return l.svcCtx.Repo.User.Save(l.ctx, user)
+	return locked, l.svcCtx.Repo.User.Save(l.ctx, user)
 }
 
 func (l *LoginLogic) passwordExpired(user *usermodel.SysUser, now time.Time) bool {

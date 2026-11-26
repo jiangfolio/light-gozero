@@ -109,6 +109,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/config/update",
 					Handler: config.ConfigUpdateHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/config/security/page",
+					Handler: config.SecurityConfigPageHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/config/security/update",
+					Handler: config.SecurityConfigUpdateHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithPrefix("/api/v1"),
@@ -203,6 +213,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: org.OrgPageHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodGet,
+					Path:    "/org/tree",
+					Handler: org.OrgTreeHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodPost,
 					Path:    "/org/update",
 					Handler: org.OrgUpdateHandler(serverCtx),
@@ -233,8 +248,18 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodGet,
+					Path:    "/resource/list",
+					Handler: resource.ResourceListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
 					Path:    "/resource/page",
 					Handler: resource.ResourcePageHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/resource/tree",
+					Handler: resource.ResourceTreeHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
@@ -328,6 +353,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/user/unbind_roles",
 					Handler: user.UserUnbindRolesHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/unlock",
+					Handler: user.UserUnlockHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,

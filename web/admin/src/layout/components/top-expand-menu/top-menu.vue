@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { useAppConfigStore } from '@/stores/app-config'
 import { resolveMenuFullPath, usePermissionStore } from '@/stores/permission'
 
@@ -21,7 +20,7 @@ const permissionStore = usePermissionStore()
 const menuTree = computed(() => permissionStore.menuTree)
 const selectedKeys = ref<string[]>([])
 
-function findFirstMenu(node: ResourceNode, basePath: string): string | null {
+function findFirstMenu(node: any, basePath: string): string | null {
   for (const child of node.children || []) {
     const childFull = resolveMenuFullPath(child, basePath)
     if (child.type === 'menu') return childFull
@@ -31,7 +30,7 @@ function findFirstMenu(node: ResourceNode, basePath: string): string | null {
   return null
 }
 
-function onSelectMenu(item: ResourceNode) {
+function onSelectMenu(item: any) {
   selectedKeys.value = [item.id]
   selectedTopMenu.value = item
   const full = resolveMenuFullPath(item, '')

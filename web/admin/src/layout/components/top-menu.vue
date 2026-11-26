@@ -2,7 +2,6 @@
 import { computed, h } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { resolveMenuFullPath, usePermissionStore } from '@/stores/permission'
 
 import MenuIcon from './menu-icon.vue'
@@ -11,7 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const permissionStore = usePermissionStore()
 
-function toItems(nodes: ResourceNode[], parentPath = ''): unknown[] {
+function toItems(nodes: any[], parentPath = ''): unknown[] {
   return nodes.map((node) => {
     const fullPath = resolveMenuFullPath(node, parentPath)
     if (node.type === 'directory' && node.children?.length) {
@@ -34,7 +33,7 @@ const menuItems = computed(() => [
   {
     key: '/home',
     label: '首页',
-    icon: () => h(MenuIcon, { name: 'Home' }),
+    icon: () => h(MenuIcon, { name: 'home' }),
   },
   ...toItems(permissionStore.menuTree),
 ])

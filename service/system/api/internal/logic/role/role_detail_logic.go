@@ -34,5 +34,9 @@ func (l *RoleDetailLogic) RoleDetail(req *types.RoleDetailReq) (resp *types.Role
 	if err != nil {
 		return nil, err
 	}
-	return toRoleItem(role, orgIds), nil
+	resourceIds, err := l.svcCtx.Repo.Role.ListResourceIdsByRoleId(l.ctx, role.Id)
+	if err != nil {
+		return nil, err
+	}
+	return toRoleItem(role, orgIds, resourceIds), nil
 }

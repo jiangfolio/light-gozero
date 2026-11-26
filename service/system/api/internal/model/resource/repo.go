@@ -42,13 +42,16 @@ func (r *Repo) CountChildren(ctx context.Context, parentIds []string) (int64, er
 	return total, nil
 }
 
-func (r *Repo) Page(ctx context.Context, name, typ string, status int64, hasStatus bool, offset, limit int) ([]SysResource, int64, error) {
+func (r *Repo) Page(ctx context.Context, name, typ, parentId string, status int64, hasStatus bool, offset, limit int) ([]SysResource, int64, error) {
 	q := r.withCtx(ctx).Model(&SysResource{})
 	if name != "" {
 		q = q.Where("name LIKE ?", "%"+name+"%")
 	}
 	if typ != "" {
 		q = q.Where("type = ?", typ)
+	}
+	if parentId != "" {
+		q = q.Where("parent_id = ?", parentId)
 	}
 	if hasStatus {
 		q = q.Where("status = ?", status)
@@ -60,6 +63,46 @@ func (r *Repo) Page(ctx context.Context, name, typ string, status int64, hasStat
 	var list []SysResource
 	err := q.Order("sort asc, created_at desc").Offset(offset).Limit(limit).Find(&list).Error
 	return list, total, err
+}
+
+// ListByParent 按父节点一次性列出子资源（如菜单下按钮），无分页。
+func (r *Repo) ListByParent(ctx context.Context, parentId, name, typ string, status int64, hasStatus bool) ([]SysResource, error) {
+	q := r.withCtx(ctx).Model(&SysResource{}).Where("parent_id = ?", parentId)
+	if name != "" {
+		q = q.Where("name LIKE ?", "%"+name+"%")
+	}
+	if typ != "" {
+		q = q.Where("type = ?", typ)
+	}
+	if hasStatus {
+		q = q.Where("status = ?", status)
+	}
+	var list []SysResource
+	err := q.Order("sort asc, created_at desc").Find(&list).Error
+	return list, err
+}
+
+// ListForTree 管理端组树：仅目录/菜单，不含按钮；按钮按 parent_id 另查。
+func (r *Repo) ListForTree(ctx context.Context, name, typ string, status int64, hasStatus bool) ([]SysResource, error) {
+	// 树接口不承载按钮；显式查 button 时直接空结果
+	if typ == "button" {
+		return nil, nil
+	}
+	q := r.withCtx(ctx).Model(&SysResource{})
+	if name != "" {
+		q = q.Where("name LIKE ?", "%"+name+"%")
+	}
+	if typ != "" {
+		q = q.Where("type = ?", typ)
+	} else {
+		q = q.Where("type IN ?", []string{"directory", "menu"})
+	}
+	if hasStatus {
+		q = q.Where("status = ?", status)
+	}
+	var list []SysResource
+	err := q.Order("sort asc, created_at desc").Find(&list).Error
+	return list, err
 }
 
 func (r *Repo) ListByIds(ctx context.Context, ids []string) ([]SysResource, error) {

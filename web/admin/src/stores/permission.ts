@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { getUserResources, type ResourceNode } from '@/api/system/user'
+import { getUserResources } from '@/api/system/user'
 
 const viewModules = import.meta.glob('@/views/**/*.vue')
 
@@ -34,7 +34,7 @@ function resolveView(componentPath: string) {
  * 资源树、权限码、动态路由构建。
  */
 export const usePermissionStore = defineStore('permission', () => {
-  const resources = ref<ResourceNode[]>([])
+  const resources = ref<any[]>([])
   const perms = ref<string[]>([])
   const loaded = ref(false)
   const dynamicRouteNames = ref<string[]>([])
@@ -60,7 +60,7 @@ export const usePermissionStore = defineStore('permission', () => {
     const routes: RouteRecordRaw[] = []
     const names: string[] = []
 
-    const walk = (nodes: ResourceNode[], parentPath: string) => {
+    const walk = (nodes: any[], parentPath: string) => {
       for (const node of nodes) {
         if (!isEnabled(node.status)) continue
         if (node.type === 'button') continue
@@ -116,8 +116,8 @@ export const usePermissionStore = defineStore('permission', () => {
 })
 
 /** 侧栏/顶栏菜单：directory + menu，过滤 hidden / 禁用。 */
-function filterMenuTree(nodes: ResourceNode[]): ResourceNode[] {
-  const result: ResourceNode[] = []
+function filterMenuTree(nodes: any[]): any[] {
+  const result: any[] = []
   for (const node of nodes) {
     if (!isEnabled(node.status)) continue
     if (node.type !== 'directory' && node.type !== 'menu') continue
@@ -128,6 +128,6 @@ function filterMenuTree(nodes: ResourceNode[]): ResourceNode[] {
   return result
 }
 
-export function resolveMenuFullPath(node: ResourceNode, parentPath = ''): string {
+export function resolveMenuFullPath(node: any, parentPath = ''): string {
   return joinPath(parentPath, node.path)
 }

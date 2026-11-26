@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { ResourceNode } from '@/api/system/user'
 import { useAppConfigStore } from '@/stores/app-config'
 import { resolveMenuFullPath, usePermissionStore } from '@/stores/permission'
 
@@ -23,7 +22,7 @@ function menuNameAdapter(name: string) {
   return name.slice(0, 2)
 }
 
-function findFirstMenu(node: ResourceNode, basePath: string): string | null {
+function findFirstMenu(node: any, basePath: string): string | null {
   // 1. 优先叶子菜单；目录则递归其子节点
   for (const child of node.children || []) {
     const childFull = resolveMenuFullPath(child, basePath)
@@ -34,12 +33,12 @@ function findFirstMenu(node: ResourceNode, basePath: string): string | null {
   return null
 }
 
-function onSelectMenu(item: ResourceNode) {
+function onSelectMenu(item: any) {
   // 1. 高亮一级；无子节点的菜单直接跳转；有子节点交给二级栏
   selectedKeys.value = [item.id]
   selectedTopMenu.value = item
   const full = resolveMenuFullPath(item, '')
-  if (item.type === 'menu' && !(item.children || []).some((c) => c.type === 'menu' || c.type === 'directory')) {
+  if (item.type === 'menu' && !(item.children || []).some((c: any) => c.type === 'menu' || c.type === 'directory')) {
     router.push(full)
     return
   }

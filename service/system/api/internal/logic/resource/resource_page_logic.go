@@ -41,7 +41,10 @@ func (l *ResourcePageLogic) ResourcePage(req *types.ResourcePageReq) (resp *type
 		}
 		hasStatus = true
 	}
-	list, total, err := l.svcCtx.Repo.Resource.Page(l.ctx, req.Name, req.Type, status, hasStatus, pageutil.Offset(page, pageSize), pageSize)
+	list, total, err := l.svcCtx.Repo.Resource.Page(
+		l.ctx, req.Name, req.Type, req.ParentId, status, hasStatus,
+		pageutil.Offset(page, pageSize), pageSize,
+	)
 	if err != nil {
 		return nil, err
 	}

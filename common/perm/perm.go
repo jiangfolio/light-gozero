@@ -13,6 +13,7 @@ const (
 	SystemOrgDelete = "system:org:delete"
 	SystemOrgDetail = "system:org:detail"
 	SystemOrgPage   = "system:org:page"
+	SystemOrgTree   = "system:org:tree"
 
 	SystemUserCreate      = "system:user:create"
 	SystemUserUpdate      = "system:user:update"
@@ -36,9 +37,8 @@ const (
 	SystemResourceDelete = "system:resource:delete"
 	SystemResourceDetail = "system:resource:detail"
 	SystemResourcePage   = "system:resource:page"
-
-	SystemAuthLogout         = "system:auth:logout"
-	SystemAuthChangePassword = "system:auth:change_password"
+	SystemResourceList   = "system:resource:list"
+	SystemResourceTree   = "system:resource:tree"
 
 	SystemAuditLoginPage = "system:audit:login_page"
 	SystemAuditOperPage  = "system:audit:oper_page"
@@ -46,6 +46,9 @@ const (
 	SystemConfigPage   = "system:config:page"
 	SystemConfigDetail = "system:config:detail"
 	SystemConfigUpdate = "system:config:update"
+
+	SystemSecurityConfigPage   = "system:security_config:page"
+	SystemSecurityConfigUpdate = "system:security_config:update"
 
 	SystemDictCreate = "system:dict:create"
 	SystemDictUpdate = "system:dict:update"

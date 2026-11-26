@@ -138,6 +138,28 @@ func (r *Repo) Page(ctx context.Context, name, code string, status int64, hasSta
 	return list, total, err
 }
 
+// ListForTree 按条件全量列出组织（含数据范围），供后端组树；无分页。
+func (r *Repo) ListForTree(ctx context.Context, name, code string, status int64, hasStatus bool, scopeOrgIds []string, selfOrgId string) ([]SysOrg, error) {
+	q := r.withCtx(ctx).Model(&SysOrg{})
+	if name != "" {
+		q = q.Where("name LIKE ?", "%"+name+"%")
+	}
+	if code != "" {
+		q = q.Where("code = ?", code)
+	}
+	if hasStatus {
+		q = q.Where("status = ?", status)
+	}
+	if selfOrgId != "" {
+		q = q.Where("id = ?", selfOrgId)
+	} else if scopeOrgIds != nil {
+		q = applyIDInFilter(q, "id", scopeOrgIds)
+	}
+	var list []SysOrg
+	err := q.Order("sort asc, created_at desc").Find(&list).Error
+	return list, err
+}
+
 func (r *Repo) Create(ctx context.Context, o *SysOrg) error {
 	return r.withCtx(ctx).Create(o).Error
 }
