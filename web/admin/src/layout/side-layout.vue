@@ -188,7 +188,8 @@ const dueHeight = computed(() => {
 }
 
 .content-inner {
-  min-height: 100%;
+  /* 定高：页面根 h-full 生效，由页面自己控制内部滚动（双卡片骨架） */
+  height: 100%;
 }
 
 .side-layout-footer {

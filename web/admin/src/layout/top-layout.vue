@@ -47,7 +47,7 @@ const dueHeight = computed(() => {
 
     <ALayoutContent
       class="top-layout-content"
-      :style="{ minHeight: `calc(100vh - ${dueHeight}px)` }"
+      :style="{ height: `calc(100vh - ${dueHeight}px)` }"
     >
       <Watermark>
         <PageContent />
@@ -116,6 +116,9 @@ const dueHeight = computed(() => {
 }
 
 .top-layout-content {
+  /* 定高 + 内部滚动：页面根 h-full 生效，双卡片骨架只在表体内滚动 */
+  min-height: 0;
+  overflow: auto;
   background: inherit;
   padding: 5px 10px 0;
 }
