@@ -31,9 +31,8 @@ export function setupInterceptors(client: AxiosInstance) {
       }
       if (body.code === 401) {
         localStorage.removeItem(TOKEN_KEY)
-        // 登录页后续接入；占位跳转
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login'
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
         }
       }
       return Promise.reject({ code: body.code, message: body.message })

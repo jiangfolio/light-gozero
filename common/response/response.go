@@ -7,6 +7,7 @@ import (
 
 	"github.com/jiangbyte/light-gozero/common/errorx"
 	"github.com/zeromicro/go-zero/core/logc"
+	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/rest/httpx"
 )
 
@@ -20,8 +21,12 @@ type Body struct {
 const (
 	codeOK           = 0
 	codeInternalFail = -1
+	codeNotFound     = 404
+	codeNotAllowed   = 405
 	msgOK            = "成功"
 	msgInternalFail  = "系统内部错误"
+	msgNotFound      = "接口不存在"
+	msgNotAllowed    = "请求方法不允许"
 )
 
 // Setup 注册 go-zero 官方 Ok/Error Handler，使 OkJsonCtx/ErrorCtx 自动包络。
@@ -49,5 +54,34 @@ func Setup() {
 			Code:    codeInternalFail,
 			Message: msgInternalFail,
 		}
+	})
+}
+
+// RestOptions 路由级 404/405 也走统一 JSON 包络，供 MustNewServer 使用。
+func RestOptions() []rest.RunOption {
+	return []rest.RunOption{
+		rest.WithNotFoundHandler(NotFoundHandler()),
+		rest.WithNotAllowedHandler(NotAllowedHandler()),
+	}
+}
+
+// NotFoundHandler 未匹配路由时返回统一包络，避免裸文本 "404 page not found"。
+func NotFoundHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 1. 写出与业务错误一致的 code/message JSON
+		httpx.WriteJsonCtx(r.Context(), w, http.StatusNotFound, Body{
+			Code:    codeNotFound,
+			Message: msgNotFound,
+		})
+	})
+}
+
+// NotAllowedHandler 方法不允许时返回统一包络。
+func NotAllowedHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		httpx.WriteJsonCtx(r.Context(), w, http.StatusMethodNotAllowed, Body{
+			Code:    codeNotAllowed,
+			Message: msgNotAllowed,
+		})
 	})
 }

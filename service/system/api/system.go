@@ -22,10 +22,10 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	// 1. 注册统一响应包络
+	// 1. 注册统一响应包络（含业务错误与路由 404/405）
 	response.Setup()
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, response.RestOptions()...)
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)

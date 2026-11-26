@@ -24,10 +24,10 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	// 1. 注册统一响应 Ok/Error Handler，必须在处理请求前完成
+	// 1. 注册统一响应 Ok/Error Handler（含路由 404/405），必须在处理请求前完成
 	response.Setup()
 
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, response.RestOptions()...)
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
