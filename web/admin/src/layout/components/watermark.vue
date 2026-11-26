@@ -15,7 +15,7 @@ const content = computed(
 <template>
   <AWatermark
     v-if="appConfig.state.watermarkFlag"
-    class="h-full"
+    class="watermark-root"
     :content="content"
     :font="{ color: 'rgba(0,0,0,0.06)', fontSize: 14 }"
     :gap="[140, 120]"
@@ -23,5 +23,18 @@ const content = computed(
   >
     <slot />
   </AWatermark>
-  <slot v-else />
+  <div v-else class="watermark-root">
+    <slot />
+  </div>
 </template>
+
+<style scoped>
+.watermark-root {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+</style>

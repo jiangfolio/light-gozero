@@ -79,7 +79,7 @@ onMounted(() => {
   <div class="login-bg">
     <div class="login-card">
       <div class="login-welcome">
-        <div class="welcome-bg">
+        <div class="welcome-copy">
           <p class="welcome-title">欢迎登录 light-gozero</p>
           <p class="welcome-sub">轻量 · 简洁 · 安全的管理后台</p>
         </div>
@@ -160,9 +160,10 @@ onMounted(() => {
   max-width: 888px;
   min-height: 600px;
   overflow: hidden;
-  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 16px 73px 8px rgba(203, 203, 203, 0.2);
+  box-shadow:
+    0 4px 16px rgba(47, 84, 150, 0.08),
+    0 18px 48px rgba(36, 72, 140, 0.16);
 
   @media (max-width: 860px) {
     min-height: 0;
@@ -171,42 +172,43 @@ onMounted(() => {
 }
 
 .login-welcome {
+  position: relative;
   width: 444px;
-  padding: 23px 25px;
-  background: #fff;
+  flex-shrink: 0;
+  background-image: url('@/assets/images/login/left-bg1.png');
+  background-size: cover;
+  background-position: center;
 
   @media (max-width: 860px) {
     display: none;
   }
 }
 
-.welcome-bg {
-  height: 100%;
-  padding: 35px 24px 0;
-  border-radius: 8px;
-  background-image: url('@/assets/images/login/left-bg1.png');
-  background-size: cover;
-  background-position: center;
+/* 与右侧「账号登录」同一水平线，落在插图上方留白，不压到立方体 */
+.welcome-copy {
+  position: absolute;
+  top: 82px;
+  right: 28px;
+  left: 28px;
   text-align: center;
-  box-shadow: 0 6px 20px 0 rgba(33, 47, 117, 0.1);
 }
 
 .welcome-title {
   margin: 0;
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 25px;
-  letter-spacing: 0.26px;
-  color: #333;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 30px;
+  letter-spacing: 0.4px;
+  color: #1e293b;
 }
 
 .welcome-sub {
-  margin-top: 12px;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 25px;
-  letter-spacing: 0.26px;
-  color: #333;
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.6px;
+  color: #64748b;
 }
 
 .login-form-pane {
@@ -242,7 +244,6 @@ onMounted(() => {
   flex-shrink: 0;
   cursor: pointer;
   border: 1px solid #e5e7eb;
-  border-radius: 6px;
   object-fit: contain;
   background: #f8fafc;
 }

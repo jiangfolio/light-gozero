@@ -15,3 +15,8 @@ export function login(data: any) {
 export function logout() {
   return http.post('/api/system/v1/auth/logout') as Promise<any>
 }
+
+/** 自助改密：old_password/new_password 需先经公钥 SM2 加密 */
+export function changePassword(data: any) {
+  return http.post('/api/system/v1/auth/change_password', data) as Promise<any>
+}

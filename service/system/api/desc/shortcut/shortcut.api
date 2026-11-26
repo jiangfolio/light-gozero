@@ -1,0 +1,49 @@
+syntax = "v1"
+
+// ShortcutItem 展示态：库中只存 resource_id，名称/路径/图标从资源现算。
+type ShortcutItem {
+	Id         string `json:"id"`
+	ResourceId string `json:"resource_id"`
+	Title      string `json:"title"`
+	Path       string `json:"path"`
+	Icon       string `json:"icon"`
+	Sort       string `json:"sort"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+}
+
+// ShortcutListResp 本人快捷入口列表（有服务端条数上限，非 page）。
+type ShortcutListResp {
+	Items []ShortcutItem `json:"items"`
+}
+
+type ShortcutCreateReq {
+	ResourceId string `json:"resource_id"`
+	Sort       string `json:"sort,optional"`
+}
+
+type ShortcutUpdateReq {
+	Id         string `json:"id"`
+	ResourceId string `json:"resource_id,optional"`
+	Sort       string `json:"sort,optional"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      shortcut
+	middleware: Auth,OperLog
+)
+service system {
+	@doc "拉当前用户快捷入口；登录即可，结果集有上限"
+	@handler ShortcutList
+	get /shortcut/list returns (ShortcutListResp)
+
+	@handler ShortcutCreate
+	post /shortcut/create (ShortcutCreateReq) returns (IdResp)
+
+	@handler ShortcutUpdate
+	post /shortcut/update (ShortcutUpdateReq)
+
+	@handler ShortcutDelete
+	post /shortcut/delete (IdsReq)
+}

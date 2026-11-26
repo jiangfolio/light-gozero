@@ -117,8 +117,10 @@ const dueHeight = computed(() => {
 
 .top-layout-content {
   /* 定高 + 内部滚动：页面根 h-full 生效，双卡片骨架只在表体内滚动 */
+  min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: inherit;
   padding: 5px 10px 0;
 }

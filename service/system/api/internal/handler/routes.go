@@ -13,6 +13,7 @@ import (
 	org "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/org"
 	resource "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/resource"
 	role "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/role"
+	shortcut "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/shortcut"
 	user "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/user"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/svc"
 
@@ -33,6 +34,25 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodGet,
 					Path:    "/audit/oper_page",
 					Handler: audit.AuditOperPageHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Auth, serverCtx.OperLog},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/audit/my_login_page",
+					Handler: audit.AuditMyLoginPageHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/audit/my_oper_page",
+					Handler: audit.AuditMyOperPageHandler(serverCtx),
 				},
 			}...,
 		),
@@ -105,11 +125,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: config.ConfigPageHandler(serverCtx),
 				},
 				{
-					Method:  http.MethodPost,
-					Path:    "/config/update",
-					Handler: config.ConfigUpdateHandler(serverCtx),
-				},
-				{
 					Method:  http.MethodGet,
 					Path:    "/config/security/page",
 					Handler: config.SecurityConfigPageHandler(serverCtx),
@@ -118,6 +133,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/config/security/update",
 					Handler: config.SecurityConfigUpdateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/config/update",
+					Handler: config.ConfigUpdateHandler(serverCtx),
 				},
 			}...,
 		),
@@ -309,6 +329,36 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/role/update",
 					Handler: role.RoleUpdateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Auth, serverCtx.OperLog},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/shortcut/create",
+					Handler: shortcut.ShortcutCreateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/shortcut/delete",
+					Handler: shortcut.ShortcutDeleteHandler(serverCtx),
+				},
+				{
+					// 拉当前用户快捷入口；登录即可，结果集有上限
+					Method:  http.MethodGet,
+					Path:    "/shortcut/list",
+					Handler: shortcut.ShortcutListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/shortcut/update",
+					Handler: shortcut.ShortcutUpdateHandler(serverCtx),
 				},
 			}...,
 		),

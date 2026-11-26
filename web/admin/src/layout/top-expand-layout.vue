@@ -176,8 +176,10 @@ const siderWidth = computed(() => {
 }
 
 .top-expand-content {
+  min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: inherit;
   padding: 5px 10px 0;
 }

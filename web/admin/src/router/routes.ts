@@ -20,6 +20,12 @@ export const constantRoutes: RouteRecordRaw[] = [
         component: () => import('@/views/home/index.vue'),
         meta: { title: '首页', affix: true, icon: 'Home' },
       },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/profile/index.vue'),
+        meta: { title: '个人中心' },
+      },
     ],
   },
   {

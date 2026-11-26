@@ -31,8 +31,23 @@ async function onLogout() {
 }
 
 function onMenuClick(info: { key: string | number }) {
-  if (String(info.key) === 'logout') onLogout()
+  const key = String(info.key)
+  if (key === 'logout') {
+    onLogout()
+    return
+  }
+  // 个人中心/修改密码：进个人中心页并定位到对应面板
+  if (key === 'profile' || key === 'password') {
+    vueRouter.push({ path: '/profile', query: key === 'password' ? { tab: 'password' } : {} })
+  }
 }
+
+const userMenuItems = [
+  { key: 'profile', label: '个人中心' },
+  { key: 'password', label: '修改密码' },
+  { type: 'divider' as const },
+  { key: 'logout', label: '退出登录' },
+]
 </script>
 
 <template>
@@ -51,9 +66,7 @@ function onMenuClick(info: { key: string | number }) {
     >
       <IconParkSettingTwo size="18" />
     </button>
-    <ADropdown
-      :menu="{ items: [{ key: 'logout', label: '退出登录' }], onClick: onMenuClick }"
-    >
+    <ADropdown :menu="{ items: userMenuItems, onClick: onMenuClick }">
       <span
         class="ml-0.5 inline-flex cursor-pointer items-center gap-2 rounded-[var(--app-border-radius)] px-2 py-1"
         :class="isDark ? 'hover:bg-white/10' : 'hover:bg-black/5'"

@@ -17,6 +17,9 @@ importers:
       dayjs:
         specifier: ^1.11.23
         version: 1.11.23
+      echarts:
+        specifier: ^6.1.0
+        version: 6.1.0
       pinia:
         specifier: ^4.1.0
         version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3))
@@ -26,6 +29,9 @@ importers:
       vue:
         specifier: ^3.5.44
         version: 3.5.46(typescript@6.0.3)
+      vue-echarts:
+        specifier: ^8.3.2
+        version: 8.3.2(echarts@6.1.0)(vue@3.5.46(typescript@6.0.3))
       vue-router:
         specifier: ^5.5.1
         version: 5.5.1(@vue/compiler-sfc@3.5.46)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@6.0.3)(vue@3.5.46(typescript@6.0.3)))(rolldown@1.2.19)(vite@8.3.8(@types/node@24.19.2)(jiti@2.7.0)(less@4.9.1))(vue@3.5.46(typescript@6.0.3))
@@ -1042,6 +1048,9 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
+  echarts@6.1.0:
+    resolution: {integrity: sha512-q0yaFPggC9FUdsWH4blavRWFmxdrIodbkoKNAjJudAI6CA9gNPxHtV2RcZNEepZVlk4yvBYkOkbk6HIVpIyHZA==}
+
   enhanced-resolve@5.27.0:
     resolution: {integrity: sha512-Do6BB2xzlcc/odFg+XEYyneAx4T/WfywO71yw9ePS2tVfRsf7JVR4mUeELadIeHzixkzbG5DpluiEFPi2WGfYQ==}
     engines: {node: '>=10.13.0'}
@@ -1663,6 +1672,9 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
+  tslib@2.3.0:
+    resolution: {integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==}
+
   tslib@2.9.1:
     resolution: {integrity: sha512-a4Ux9VKuIMHsOS7ENbEq6hK2ZGYIT27Rtl0E4eD9KqwxhKiQeMZE/9xb3IdYwWaSOyIBQLExhQgXDTYoiCxnWA==}
 
@@ -1847,6 +1859,12 @@ packages:
   vscode-uri@3.2.0:
     resolution: {integrity: sha512-m2gXo3bn0G1kT9InzMf07fTbqMbGtyckj3bH5ktLO+1Ssv+yiATZ4dhwaQv9UZWxJh6E9IFGnQyjgWVDWVBDrg==}
 
+  vue-echarts@8.3.2:
+    resolution: {integrity: sha512-FbJD49OZZZv1I8aclHQ+gcQxU+Y9nNWQMuod1sewE7/YjGQUJAaeVcf6WrSfQDBRPke+WoVsUtdRFIqPOsRrnw==}
+    peerDependencies:
+      echarts: ^6.0.0
+      vue: ^3.3.0
+
   vue-eslint-parser@10.4.2:
     resolution: {integrity: sha512-WMpzulb50kb6snghzoGzS++62wcOszAk/piYcnvzdStM8Wni/BmogYltpoOFv2eK9hDbXxvwFQgnwZGpAoUfpA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -1904,6 +1922,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zrender@6.1.0:
+    resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
 
 snapshots:
 
@@ -2923,6 +2944,11 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
+  echarts@6.1.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.1.0
+
   enhanced-resolve@5.27.0:
     dependencies:
       graceful-fs: 4.2.12
@@ -3513,6 +3539,8 @@ snapshots:
     dependencies:
       typescript: 6.0.3
 
+  tslib@2.3.0: {}
+
   tslib@2.9.1:
     optional: true
 
@@ -3682,6 +3710,11 @@ snapshots:
 
   vscode-uri@3.2.0: {}
 
+  vue-echarts@8.3.2(echarts@6.1.0)(vue@3.5.46(typescript@6.0.3)):
+    dependencies:
+      echarts: 6.1.0
+      vue: 3.5.46(typescript@6.0.3)
+
   vue-eslint-parser@10.4.2(eslint@10.15.0(jiti@2.7.0)):
     dependencies:
       debug: 4.4.3
@@ -3755,3 +3788,7 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zrender@6.1.0:
+    dependencies:
+      tslib: 2.3.0

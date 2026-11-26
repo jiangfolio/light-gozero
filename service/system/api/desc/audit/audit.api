@@ -58,6 +58,21 @@ type AuditOperPageResp {
 	Total    string          `json:"total"`
 }
 
+// AuditLoginMyPageReq 我的登录日志：用户名由后端取自登录态，前端不可传。
+type AuditLoginMyPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Result   string `form:"result,optional"`
+}
+
+// AuditOperMyPageReq 我的操作日志：用户名由后端取自登录态，前端不可传。
+type AuditOperMyPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Module   string `form:"module,optional"`
+	Result   string `form:"result,optional"`
+}
+
 @server (
 	prefix:     /api/v1
 	group:      audit
@@ -69,4 +84,18 @@ service system {
 
 	@handler AuditOperPage
 	get /audit/oper_page (AuditOperPageReq) returns (AuditOperPageResp)
+}
+
+@server (
+	prefix:     /api/v1
+	group:      audit
+	middleware: Auth,OperLog
+)
+service system {
+	// 个人中心-我的日志：登录即可，用户名从会话取，不走角色授权
+	@handler AuditMyLoginPage
+	get /audit/my_login_page (AuditLoginMyPageReq) returns (AuditLoginPageResp)
+
+	@handler AuditMyOperPage
+	get /audit/my_oper_page (AuditOperMyPageReq) returns (AuditOperPageResp)
 }

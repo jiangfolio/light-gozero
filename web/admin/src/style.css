@@ -1,5 +1,14 @@
 @import 'tailwindcss';
 
+:root {
+  /* 与 antdv Card(borderless) 的 boxShadowTertiary 完全一致；
+     项目未开 cssVar，手写卡片统一引用该变量，避免有的有投影有的没有 */
+  --app-card-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    0 1px 6px -1px rgba(0, 0, 0, 0.03),
+    0 2px 4px 0 rgba(0, 0, 0, 0.03);
+}
+
 @layer base {
   html,
   body,
@@ -50,4 +59,32 @@
   .ant-modal-body {
     overscroll-behavior: contain;
   }
+}
+
+/* antdv sticky 表格的合成横向滚动条是 div，不受 ::-webkit-scrollbar 控制；
+   统一覆盖成与全局一致的 6px 细淡样式。
+   注意必须写在 @layer 外：cssinjs 注入的是非 layer 样式且高度带 !important，
+   layer 内的 !important 优先级被反转，会输给 layer 外 */
+.ant-table-wrapper .ant-table-sticky-scroll.ant-table-sticky-scroll {
+  height: 6px !important;
+  background: transparent;
+  border-top: 0;
+  opacity: 1;
+}
+
+.ant-table-wrapper
+  .ant-table-sticky-scroll
+  .ant-table-sticky-scroll-bar.ant-table-sticky-scroll-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ant-color-text-quaternary, rgba(0, 0, 0, 0.22));
+}
+
+.ant-table-wrapper
+  .ant-table-sticky-scroll
+  .ant-table-sticky-scroll-bar.ant-table-sticky-scroll-bar:hover,
+.ant-table-wrapper
+  .ant-table-sticky-scroll
+  .ant-table-sticky-scroll-bar.ant-table-sticky-scroll-bar-active {
+  background: var(--ant-color-text-tertiary, rgba(0, 0, 0, 0.35));
 }

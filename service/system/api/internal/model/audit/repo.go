@@ -59,3 +59,36 @@ func (r *Repo) PageOperLogs(ctx context.Context, username, module, result string
 	err := q.Order("created_at desc").Offset(offset).Limit(limit).Find(&list).Error
 	return list, total, err
 }
+
+// PageLoginLogsByUserId 按用户 ID 精确查登录日志；个人中心专用，ID 不可变、不受改名影响。
+func (r *Repo) PageLoginLogsByUserId(ctx context.Context, userId, result string, offset, limit int) ([]LoginLog, int64, error) {
+	q := r.withCtx(ctx).Model(&LoginLog{}).Where("user_id = ?", userId)
+	if result != "" {
+		q = q.Where("result = ?", result)
+	}
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var list []LoginLog
+	err := q.Order("created_at desc").Offset(offset).Limit(limit).Find(&list).Error
+	return list, total, err
+}
+
+// PageOperLogsByUserId 按用户 ID 精确查操作日志；个人中心专用，ID 不可变、不受改名影响。
+func (r *Repo) PageOperLogsByUserId(ctx context.Context, userId, module, result string, offset, limit int) ([]OperLog, int64, error) {
+	q := r.withCtx(ctx).Model(&OperLog{}).Where("user_id = ?", userId)
+	if module != "" {
+		q = q.Where("module = ?", module)
+	}
+	if result != "" {
+		q = q.Where("result = ?", result)
+	}
+	var total int64
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	var list []OperLog
+	err := q.Order("created_at desc").Offset(offset).Limit(limit).Find(&list).Error
+	return list, total, err
+}

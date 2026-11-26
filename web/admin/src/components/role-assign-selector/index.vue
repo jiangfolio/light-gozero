@@ -230,7 +230,13 @@ function removeAll() {
             <EllipsisText :text="record.name" />
           </template>
           <template v-else-if="column.dataIndex === 'data_scope'">
-            <ATag>{{ dataScopeLabel[record.data_scope] || record.data_scope || '-' }}</ATag>
+            <ATag>
+              {{
+                (record.data_scope && dataScopeLabel[String(record.data_scope)]) ||
+                record.data_scope ||
+                '-'
+              }}
+            </ATag>
           </template>
         </template>
       </ATable>

@@ -4,6 +4,7 @@ USE light_gozero;
 DROP TABLE IF EXISTS sys_oper_log;
 DROP TABLE IF EXISTS sys_login_log;
 DROP TABLE IF EXISTS sys_password_history;
+DROP TABLE IF EXISTS sys_user_shortcut;
 DROP TABLE IF EXISTS sys_dict;
 DROP TABLE IF EXISTS sys_config;
 DROP TABLE IF EXISTS rel_role_orgs;
@@ -161,6 +162,20 @@ CREATE TABLE sys_dict (
     KEY idx_sys_dict_parent (parent_id),
     KEY idx_sys_dict_code (dict_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统字典（类型与项同表）';
+
+CREATE TABLE sys_user_shortcut (
+    id          VARCHAR(36)  NOT NULL COMMENT '主键ID',
+    user_id     VARCHAR(36)  NOT NULL COMMENT '所属用户ID',
+    resource_id VARCHAR(36)  NOT NULL COMMENT '菜单资源ID（名称/路径/图标跟资源走）',
+    sort        INT          NOT NULL DEFAULT 0 COMMENT '排序',
+    created_by  VARCHAR(36)  NOT NULL DEFAULT '' COMMENT '创建人ID',
+    updated_by  VARCHAR(36)  NOT NULL DEFAULT '' COMMENT '更新人ID',
+    created_at  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+    updated_at  DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_shortcut_resource (user_id, resource_id),
+    KEY idx_user_shortcut_user_sort (user_id, sort)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户工作台快捷入口';
 
 CREATE TABLE sys_password_history (
     id            VARCHAR(36)  NOT NULL COMMENT '主键ID',

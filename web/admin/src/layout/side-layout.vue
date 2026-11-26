@@ -181,15 +181,22 @@ const dueHeight = computed(() => {
 
 .side-layout-content {
   position: relative;
+  min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: inherit;
   padding: 5px 10px 0;
 }
 
 .content-inner {
   /* 定高：页面根 h-full 生效，由页面自己控制内部滚动（双卡片骨架） */
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
+  overflow-x: hidden;
 }
 
 .side-layout-footer {

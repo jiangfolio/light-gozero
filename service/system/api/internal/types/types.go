@@ -15,6 +15,12 @@ type AuditLoginItem struct {
 	CreatedAt  string `json:"created_at"`
 }
 
+type AuditLoginMyPageReq struct {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Result   string `form:"result,optional"`
+}
+
 type AuditLoginPageReq struct {
 	Page     string `form:"page"`
 	PageSize string `form:"page_size"`
@@ -44,6 +50,13 @@ type AuditOperItem struct {
 	ResultName string `json:"result_name"`
 	Message    string `json:"message"`
 	CreatedAt  string `json:"created_at"`
+}
+
+type AuditOperMyPageReq struct {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Module   string `form:"module,optional"`
+	Result   string `form:"result,optional"`
 }
 
 type AuditOperPageReq struct {
@@ -114,13 +127,6 @@ type ConfigPublicItem struct {
 
 type ConfigPublicResp struct {
 	Items []ConfigPublicItem `json:"items"`
-}
-
-type SecurityConfigPageReq struct {
-	Page      string `form:"page"`
-	PageSize  string `form:"page_size"`
-	ConfigKey string `form:"config_key,optional"`
-	Status    string `form:"status,optional"`
 }
 
 type ConfigUpdateItem struct {
@@ -287,6 +293,20 @@ type OrgItem struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type OrgNode struct {
+	Id        string    `json:"id"`
+	ParentId  string    `json:"parent_id"`
+	Name      string    `json:"name"`
+	Code      string    `json:"code"`
+	Sort      string    `json:"sort"`
+	Status    string    `json:"status"`
+	CreatedBy string    `json:"created_by"`
+	UpdatedBy string    `json:"updated_by"`
+	CreatedAt string    `json:"created_at"`
+	UpdatedAt string    `json:"updated_at"`
+	Children  []OrgNode `json:"children"`
+}
+
 type OrgPageReq struct {
 	Page     string `form:"page"`
 	PageSize string `form:"page_size"`
@@ -306,20 +326,6 @@ type OrgTreeReq struct {
 	Name   string `form:"name,optional"`
 	Code   string `form:"code,optional"`
 	Status string `form:"status,optional"`
-}
-
-type OrgNode struct {
-	Id        string    `json:"id"`
-	ParentId  string    `json:"parent_id"`
-	Name      string    `json:"name"`
-	Code      string    `json:"code"`
-	Sort      string    `json:"sort"`
-	Status    string    `json:"status"`
-	CreatedBy string    `json:"created_by"`
-	UpdatedBy string    `json:"updated_by"`
-	CreatedAt string    `json:"created_at"`
-	UpdatedAt string    `json:"updated_at"`
-	Children  []OrgNode `json:"children"`
 }
 
 type OrgTreeResp struct {
@@ -382,6 +388,17 @@ type ResourceItem struct {
 	UpdatedAt     string `json:"updated_at"`
 }
 
+type ResourceListReq struct {
+	ParentId string `form:"parent_id"`
+	Type     string `form:"type,optional"`
+	Name     string `form:"name,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type ResourceListResp struct {
+	Items []ResourceItem `json:"items"`
+}
+
 type ResourceNode struct {
 	Id            string         `json:"id"`
 	ParentId      string         `json:"parent_id"`
@@ -417,23 +434,6 @@ type ResourcePageResp struct {
 	Total    string         `json:"total"`
 }
 
-type ResourceListReq struct {
-	ParentId string `form:"parent_id"`
-	Type     string `form:"type,optional"`
-	Name     string `form:"name,optional"`
-	Status   string `form:"status,optional"`
-}
-
-type ResourceListResp struct {
-	Items []ResourceItem `json:"items"`
-}
-
-type ResourceTreeReq struct {
-	Name   string `form:"name,optional"`
-	Type   string `form:"type,optional"`
-	Status string `form:"status,optional"`
-}
-
 type ResourceTreeNode struct {
 	Id            string             `json:"id"`
 	ParentId      string             `json:"parent_id"`
@@ -455,6 +455,12 @@ type ResourceTreeNode struct {
 	CreatedAt     string             `json:"created_at"`
 	UpdatedAt     string             `json:"updated_at"`
 	Children      []ResourceTreeNode `json:"children"`
+}
+
+type ResourceTreeReq struct {
+	Name   string `form:"name,optional"`
+	Type   string `form:"type,optional"`
+	Status string `form:"status,optional"`
 }
 
 type ResourceTreeResp struct {
@@ -537,6 +543,39 @@ type RoleUpdateReq struct {
 	Status    string   `json:"status,optional"`
 }
 
+type SecurityConfigPageReq struct {
+	Page      string `form:"page"`
+	PageSize  string `form:"page_size"`
+	ConfigKey string `form:"config_key,optional"`
+	Status    string `form:"status,optional"`
+}
+
+type ShortcutCreateReq struct {
+	ResourceId string `json:"resource_id"`
+	Sort       string `json:"sort,optional"`
+}
+
+type ShortcutItem struct {
+	Id         string `json:"id"`
+	ResourceId string `json:"resource_id"`
+	Title      string `json:"title"`
+	Path       string `json:"path"`
+	Icon       string `json:"icon"`
+	Sort       string `json:"sort"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+}
+
+type ShortcutListResp struct {
+	Items []ShortcutItem `json:"items"`
+}
+
+type ShortcutUpdateReq struct {
+	Id         string `json:"id"`
+	ResourceId string `json:"resource_id,optional"`
+	Sort       string `json:"sort,optional"`
+}
+
 type UserBindRolesReq struct {
 	UserId  string   `json:"user_id"`
 	RoleIds []string `json:"role_ids"`
@@ -569,10 +608,6 @@ type UserItem struct {
 	UpdatedAt   string   `json:"updated_at"`
 }
 
-type UserUnlockReq struct {
-	Id string `json:"id"`
-}
-
 type UserPageReq struct {
 	Page     string `form:"page"`
 	PageSize string `form:"page_size"`
@@ -595,6 +630,10 @@ type UserResourcesReq struct {
 type UserResourcesResp struct {
 	Resources []ResourceNode `json:"resources"`
 	Perms     []string       `json:"perms"`
+}
+
+type UserUnlockReq struct {
+	Id string `json:"id"`
 }
 
 type UserUpdateReq struct {
