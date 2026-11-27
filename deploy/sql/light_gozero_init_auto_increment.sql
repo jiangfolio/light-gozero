@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS sys_oper_log;
 DROP TABLE IF EXISTS sys_login_log;
 DROP TABLE IF EXISTS sys_password_history;
 DROP TABLE IF EXISTS sys_user_shortcut;
+DROP TABLE IF EXISTS sys_notice;
 DROP TABLE IF EXISTS sys_dict;
 DROP TABLE IF EXISTS sys_config;
 DROP TABLE IF EXISTS rel_role_orgs;
@@ -160,6 +161,23 @@ CREATE TABLE sys_dict (
     KEY idx_sys_dict_parent (parent_id),
     KEY idx_sys_dict_code (dict_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统字典（类型与项同表）';
+
+CREATE TABLE sys_notice (
+    id         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    title      VARCHAR(200) NOT NULL DEFAULT '' COMMENT '标题',
+    content    TEXT         NOT NULL COMMENT '正文',
+    type       TINYINT      NOT NULL DEFAULT 1 COMMENT '类型：1通知 2公告',
+    status     TINYINT      NOT NULL DEFAULT 0 COMMENT '状态：0草稿 1已发布',
+    sort       INT          NOT NULL DEFAULT 0 COMMENT '排序',
+    publish_at DATETIME(3)  NULL COMMENT '发布时间',
+    remark     VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
+    created_by BIGINT       NOT NULL DEFAULT 0 COMMENT '创建人ID',
+    updated_by BIGINT       NOT NULL DEFAULT 0 COMMENT '更新人ID',
+    created_at DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+    updated_at DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+    PRIMARY KEY (id),
+    KEY idx_sys_notice_status_publish (status, publish_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告';
 
 CREATE TABLE sys_user_shortcut (
     id          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',

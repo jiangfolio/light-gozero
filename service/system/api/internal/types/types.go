@@ -268,6 +268,70 @@ type LoginUser struct {
 	OrgId    string `json:"org_id"`
 }
 
+type NoticeCreateReq struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Type    string `json:"type"`
+	Status  string `json:"status,optional"`
+	Sort    string `json:"sort,optional"`
+	Remark  string `json:"remark,optional"`
+}
+
+type NoticeDetailReq struct {
+	Id string `form:"id"`
+}
+
+type NoticeInfo struct {
+	Id        string `json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Type      string `json:"type"`
+	Status    string `json:"status"`
+	Sort      string `json:"sort"`
+	PublishAt string `json:"publish_at"`
+	Remark    string `json:"remark"`
+	CreatedBy string `json:"created_by"`
+	UpdatedBy string `json:"updated_by"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type NoticePageReq struct {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Title    string `form:"title,optional"`
+	Type     string `form:"type,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type NoticePageResp struct {
+	Items    []NoticeInfo `json:"items"`
+	Page     string       `json:"page"`
+	PageSize string       `json:"page_size"`
+	Total    string       `json:"total"`
+}
+
+type NoticePublishedDetailReq struct {
+	Id string `form:"id"`
+}
+
+type NoticePublishedPageReq struct {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Title    string `form:"title,optional"`
+	Type     string `form:"type,optional"`
+}
+
+type NoticeUpdateReq struct {
+	Id      string `json:"id"`
+	Title   string `json:"title,optional"`
+	Content string `json:"content,optional"`
+	Type    string `json:"type,optional"`
+	Status  string `json:"status,optional"`
+	Sort    string `json:"sort,optional"`
+	Remark  string `json:"remark,optional"`
+}
+
 type OrgCreateReq struct {
 	ParentId string `json:"parent_id,optional"`
 	Name     string `json:"name"`

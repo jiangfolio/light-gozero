@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { message, Modal } from 'antdv-next'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import {
   createResource,
@@ -13,10 +14,14 @@ import EllipsisText from '@/components/ellipsis-text/index.vue'
 import IconPicker from '@/components/icon-picker/index.vue'
 import PageSearch from '@/components/page-search/index.vue'
 import PageTable from '@/components/page-table/index.vue'
+import { usePageReload } from '@/composables/use-page-reload'
 import { toTreeSelectData } from '@/lib/format'
+import { refreshMenus } from '@/lib/refresh-menus'
 import { tableScrollX, withEllipsisColumns } from '@/lib/table'
 
 defineOptions({ name: 'SystemResource' })
+
+const router = useRouter()
 
 const defaultQuery = {
   name: '',
@@ -213,6 +218,7 @@ async function submitForm() {
     }
     formOpen.value = false
     await loadData()
+    await refreshMenus(router)
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err.message || '保存失败')
@@ -236,6 +242,7 @@ function confirmDelete(ids: string[]) {
         await deleteResource(ids)
         message.success('删除成功')
         await loadData()
+        await refreshMenus(router)
       } catch (e: unknown) {
         const err = e as { message?: string }
         message.error(err.message || '删除失败')
@@ -339,6 +346,7 @@ async function submitBtn() {
     }
     btnFormOpen.value = false
     await loadButtons()
+    await refreshMenus(router)
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err.message || '保存失败')
@@ -357,6 +365,7 @@ function confirmDeleteBtn(ids: string[]) {
         await deleteResource(ids)
         message.success('删除成功')
         await loadButtons()
+        await refreshMenus(router)
       } catch (e: unknown) {
         const err = e as { message?: string }
         message.error(err.message || '删除失败')
@@ -373,9 +382,7 @@ const menuMoreItems = (record: any) => ({
   },
 })
 
-onMounted(() => {
-  loadData()
-})
+usePageReload(loadData)
 </script>
 
 <template>

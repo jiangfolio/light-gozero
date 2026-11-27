@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { message, Modal } from 'antdv-next'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
 import {
   createOrg,
@@ -10,6 +10,7 @@ import {
 } from '@/api/system/org'
 import PageSearch from '@/components/page-search/index.vue'
 import PageTable from '@/components/page-table/index.vue'
+import { usePageReload } from '@/composables/use-page-reload'
 import { withEllipsisColumns } from '@/lib/table'
 import { toTreeSelectData } from '@/lib/format'
 
@@ -191,9 +192,7 @@ function confirmDelete(ids: string[]) {
   })
 }
 
-onMounted(() => {
-  loadData()
-})
+usePageReload(loadData)
 </script>
 
 <template>

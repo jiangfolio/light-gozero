@@ -3,9 +3,10 @@
  */
 import type { EChartsOption } from 'echarts'
 
-import { loginTrend } from './mock'
+import { emptyLoginTrend, type LoginTrend } from './mock'
 
-export function buildLoginTrendOption(): EChartsOption {
+export function buildLoginTrendOption(trend?: LoginTrend): EChartsOption {
+  const data = trend ?? emptyLoginTrend()
   return {
     color: ['#1677ff', '#ff4d4f', '#faad14'],
     tooltip: {
@@ -24,7 +25,7 @@ export function buildLoginTrendOption(): EChartsOption {
     xAxis: {
       type: 'category',
       boundaryGap: false,
-      data: loginTrend.dates,
+      data: data.dates,
       axisTick: { show: false },
       axisLine: { lineStyle: { color: '#f0f0f0' } },
       axisLabel: { color: 'rgba(0,0,0,0.45)' },
@@ -42,21 +43,21 @@ export function buildLoginTrendOption(): EChartsOption {
         smooth: true,
         showSymbol: false,
         areaStyle: { opacity: 0.1 },
-        data: loginTrend.success,
+        data: data.success,
       },
       {
         name: '失败',
         type: 'line',
         smooth: true,
         showSymbol: false,
-        data: loginTrend.fail,
+        data: data.fail,
       },
       {
         name: '锁定',
         type: 'line',
         smooth: true,
         showSymbol: false,
-        data: loginTrend.locked,
+        data: data.locked,
       },
     ],
   }

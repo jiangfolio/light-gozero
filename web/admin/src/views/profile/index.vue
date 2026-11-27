@@ -9,6 +9,7 @@ import { useRoute } from 'vue-router'
 import MenuIcon from '@/layout/components/menu-icon.vue'
 
 import LoginLogPanel from './panels/login-log-panel.vue'
+import NoticePanel from './panels/notice-panel.vue'
 import OperLogPanel from './panels/oper-log-panel.vue'
 import PasswordPanel from './panels/password-panel.vue'
 import PlaceholderPanel from './panels/placeholder-panel.vue'
@@ -72,11 +73,7 @@ const activeMenu = computed(() => menus.find((m) => m.key === activeKey.value))
         title="我的消息"
         description="消息中心暂未接入"
       />
-      <PlaceholderPanel
-        v-else-if="activeKey === 'notice'"
-        title="通知公告"
-        description="通知公告暂未接入"
-      />
+      <NoticePanel v-else-if="activeKey === 'notice'" />
       <LoginLogPanel v-else-if="activeKey === 'login-log'" />
       <OperLogPanel v-else-if="activeKey === 'oper-log'" />
       <AEmpty v-else :description="activeMenu?.label" />

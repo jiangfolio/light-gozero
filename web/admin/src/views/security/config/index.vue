@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { message } from 'antdv-next'
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 import { pageSecurityConfig, updateSecurityConfig } from '@/api/system/security-config'
+import { usePageReload } from '@/composables/use-page-reload'
 import { fetchAllPages } from '@/lib/tree'
 
 defineOptions({ name: 'SecurityConfig' })
@@ -110,9 +111,7 @@ async function onSave() {
   }
 }
 
-onMounted(() => {
-  loadData()
-})
+usePageReload(loadData)
 </script>
 
 <template>

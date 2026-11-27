@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { message, Modal } from 'antdv-next'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { treeOrg } from '@/api/system/org'
 import { listResource, treeResource } from '@/api/system/resource'
@@ -16,10 +17,14 @@ import {
 import EllipsisText from '@/components/ellipsis-text/index.vue'
 import PageSearch from '@/components/page-search/index.vue'
 import PageTable from '@/components/page-table/index.vue'
+import { usePageReload } from '@/composables/use-page-reload'
 import { toTreeSelectData } from '@/lib/format'
+import { refreshMenus } from '@/lib/refresh-menus'
 import { tableScrollX, withEllipsisColumns } from '@/lib/table'
 
 defineOptions({ name: 'SystemRole' })
+
+const router = useRouter()
 
 const dataScopeOptions = [
   { label: '仅本人', value: '1' },
@@ -453,6 +458,8 @@ async function submitGrantResource() {
     if (toRemove.length) await unbindRoleResources(grantRole.value.id, toRemove)
     message.success('资源授权成功')
     grantOpen.value = false
+    // 角色资源变更会影响当前用户菜单，立即重拉
+    await refreshMenus(router)
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err.message || '授权失败')
@@ -520,7 +527,7 @@ async function submitGrantScope() {
   }
 }
 
-onMounted(async () => {
+async function bootstrap() {
   try {
     const resp = await treeOrg()
     orgTreeSelectData.value = toTreeSelectData(resp.items ?? [])
@@ -528,7 +535,9 @@ onMounted(async () => {
     // ignore
   }
   await loadData()
-})
+}
+
+usePageReload(bootstrap)
 </script>
 
 <template>

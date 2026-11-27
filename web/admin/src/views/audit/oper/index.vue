@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { message } from 'antdv-next'
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 import { pageAuditOper } from '@/api/system/audit'
 import EllipsisText from '@/components/ellipsis-text/index.vue'
 import PageSearch from '@/components/page-search/index.vue'
 import PageTable from '@/components/page-table/index.vue'
+import { usePageReload } from '@/composables/use-page-reload'
 import { withEllipsisColumns } from '@/lib/table'
 
 defineOptions({ name: 'SystemAuditOper' })
@@ -86,9 +87,7 @@ function onPageChange(page: number, size: number) {
   loadData()
 }
 
-onMounted(() => {
-  loadData()
-})
+usePageReload(loadData)
 </script>
 
 <template>

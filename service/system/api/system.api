@@ -17,6 +17,7 @@ import (
 	"desc/audit/audit.api"
 	"desc/config/config.api"
 	"desc/dict/dict.api"
+	"desc/notice/notice.api"
 	"desc/shortcut/shortcut.api"
 )
 

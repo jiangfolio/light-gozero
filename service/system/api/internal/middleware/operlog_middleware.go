@@ -80,20 +80,33 @@ func (m *OperLogMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+const (
+	// 与 Rest MaxBytes 对齐，保证后续 handler 能拿到完整 body
+	maxBodyCapture = 1 << 20
+	previewBytes   = 4096
+)
+
 func readBodyPreview(r *http.Request) string {
 	if r.Body == nil {
 		return ""
 	}
-	raw, err := io.ReadAll(io.LimitReader(r.Body, 4096))
+	// 1. 读完整请求体（有上限），再原样回填，避免大 body 被截断后 Parse 失败
+	raw, err := io.ReadAll(io.LimitReader(r.Body, maxBodyCapture))
 	if err != nil {
 		return ""
 	}
+	_ = r.Body.Close()
 	r.Body = io.NopCloser(bytes.NewReader(raw))
 	if len(raw) == 0 {
 		return ""
 	}
+	// 2. 审计预览只用前缀，脱敏后截断
+	preview := raw
+	if len(preview) > previewBytes {
+		preview = preview[:previewBytes]
+	}
 	var m map[string]any
-	if json.Unmarshal(raw, &m) == nil {
+	if json.Unmarshal(preview, &m) == nil {
 		for k := range m {
 			if sensitiveJSONKey(k) {
 				m[k] = "***"
@@ -101,12 +114,12 @@ func readBodyPreview(r *http.Request) string {
 		}
 		b, err := json.Marshal(m)
 		if err == nil {
-			raw = b
+			preview = b
 		}
-	} else if looksSensitiveRaw(raw) {
+	} else if looksSensitiveRaw(preview) {
 		return "***"
 	}
-	s := string(raw)
+	s := string(preview)
 	if utf8.RuneCountInString(s) > 1800 {
 		runes := []rune(s)
 		s = string(runes[:1800])

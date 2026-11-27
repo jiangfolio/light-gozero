@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { message, Modal } from 'antdv-next'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { fetchPublicKey } from '@/api/system/auth'
 import { treeOrg } from '@/api/system/org'
@@ -19,12 +20,18 @@ import EllipsisText from '@/components/ellipsis-text/index.vue'
 import PageSearch from '@/components/page-search/index.vue'
 import PageTable from '@/components/page-table/index.vue'
 import RoleAssignSelector from '@/components/role-assign-selector/index.vue'
+import { usePageReload } from '@/composables/use-page-reload'
 import { encryptPassword } from '@/lib/crypto/sm2'
 import { toTreeSelectData } from '@/lib/format'
+import { refreshMenus } from '@/lib/refresh-menus'
 import { withEllipsisColumns } from '@/lib/table'
 import { fetchAllPages } from '@/lib/tree'
+import { useUserStore } from '@/stores/user'
 
 defineOptions({ name: 'SystemUser' })
+
+const router = useRouter()
+const userStore = useUserStore()
 
 const orgTreeData = ref<any[]>([])
 const orgTreeSelectData = ref<any[]>([])
@@ -290,6 +297,10 @@ async function submitBindRoles() {
     if (toRemove.length) await unbindUserRoles(roleUserId.value, toRemove)
     message.success('角色分配成功')
     roleModalOpen.value = false
+    // 改的是当前登录用户时，立刻刷新菜单/权限
+    if (String(roleUserId.value) === String(userStore.userInfo?.id || '')) {
+      await refreshMenus(router)
+    }
   } catch (e: unknown) {
     const err = e as { message?: string }
     message.error(err.message || '分配失败')
@@ -298,14 +309,16 @@ async function submitBindRoles() {
   }
 }
 
-onMounted(async () => {
+async function bootstrap() {
   try {
     await loadOrgTree()
   } catch {
     // 组织树失败不阻断列表
   }
   await loadData()
-})
+}
+
+usePageReload(bootstrap)
 </script>
 
 <template>

@@ -12,22 +12,33 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import VChart from 'vue-echarts'
 
+import { pageAuditLogin, pageAuditOper } from '@/api/system/audit'
+import { treeOrg } from '@/api/system/org'
+import { pageRole } from '@/api/system/role'
+import { treeResource } from '@/api/system/resource'
 import {
   createShortcut,
   deleteShortcut,
   listShortcut,
   updateShortcut,
 } from '@/api/system/shortcut'
+import { pageUser } from '@/api/system/user'
+import { usePageReload } from '@/composables/use-page-reload'
 import MenuIcon from '@/layout/components/menu-icon.vue'
 import { usePermissionStore } from '@/stores/permission'
 import { useUserStore } from '@/stores/user'
 
 import { buildLoginTrendOption } from './charts'
-import { kpis, recentLogins, recentOpers } from './mock'
+import {
+  emptyLoginTrend,
+  type FeedItem,
+  type KpiItem,
+  type LoginTrend,
+} from './mock'
 
 defineOptions({ name: 'Home' })
 
@@ -62,7 +73,25 @@ const greeting = computed(() => {
 })
 
 const dateText = computed(() => now.value.format('YYYY-MM-DD HH:mm'))
-const loginTrendOption = computed(() => buildLoginTrendOption())
+
+const kpis = ref<KpiItem[]>([
+  { key: 'user', label: '用户', value: '-', hint: '加载中', icon: 'user', tone: '#1677ff' },
+  { key: 'org', label: '组织', value: '-', hint: '加载中', icon: 'peoples', tone: '#13c2c2' },
+  { key: 'role', label: '角色', value: '-', hint: '加载中', icon: 'protect', tone: '#52c41a' },
+  {
+    key: 'resource',
+    label: '菜单资源',
+    value: '-',
+    hint: '加载中',
+    icon: 'all-application',
+    tone: '#fa8c16',
+  },
+])
+const recentLogins = ref<FeedItem[]>([])
+const recentOpers = ref<FeedItem[]>([])
+const loginTrend = ref<LoginTrend>(emptyLoginTrend())
+const loginTrendOption = computed(() => buildLoginTrendOption(loginTrend.value))
+const overviewLoading = ref(false)
 
 /** 菜单资源树：目录不可选，仅菜单可选 */
 const menuSelectTree = computed(() => buildMenuSelectTree(permissionStore.menuTree || []))
@@ -111,6 +140,139 @@ function buildMenuSelectTree(nodes: any[]): any[] {
   return out
 }
 
+/** 递归统计树节点数 */
+function countTreeNodes(nodes: any[] | undefined): number {
+  if (!nodes?.length) return 0
+  let n = 0
+  for (const node of nodes) {
+    n += 1
+    n += countTreeNodes(node.children)
+  }
+  return n
+}
+
+/** 取组织树根节点名称，作 KPI 副文案 */
+function rootOrgHint(nodes: any[] | undefined): string {
+  const root = nodes?.[0]
+  return root?.name ? String(root.name) : '含下级节点'
+}
+
+/** 登录日志聚合成近 7 日趋势 */
+function aggregateLoginTrend(items: any[]): LoginTrend {
+  const base = emptyLoginTrend()
+  const index = new Map(base.dates.map((d, i) => [d, i]))
+  const start = dayjs().subtract(6, 'day').startOf('day')
+  for (const row of items) {
+    const t = dayjs(row.created_at)
+    if (!t.isValid() || t.isBefore(start)) continue
+    const key = t.format('MM-DD')
+    const i = index.get(key)
+    if (i === undefined) continue
+    if (row.result === 'success') base.success[i] += 1
+    else if (row.result === 'fail') base.fail[i] += 1
+    else if (row.result === 'locked') base.locked[i] += 1
+  }
+  return base
+}
+
+const loginResultLabel: Record<string, string> = {
+  success: '登录成功',
+  fail: '登录失败',
+  locked: '触发锁定',
+  logout: '退出登录',
+}
+
+/** 拉取 KPI / 趋势 / 最近动态（单项失败不阻断其余） */
+async function loadOverview() {
+  overviewLoading.value = true
+  try {
+    // 1. 并行请求用户/启用用户/组织树/角色/资源树/审计
+    const settled = await Promise.allSettled([
+      pageUser({ page: '1', page_size: '1' }),
+      pageUser({ page: '1', page_size: '1', status: '1' }),
+      treeOrg(),
+      pageRole({ page: '1', page_size: '1' }),
+      treeResource(),
+      pageAuditLogin({ page: '1', page_size: '200' }),
+      pageAuditLogin({ page: '1', page_size: '5' }),
+      pageAuditOper({ page: '1', page_size: '5' }),
+    ])
+
+    const val = <T>(i: number): T | null =>
+      settled[i]?.status === 'fulfilled' ? ((settled[i] as PromiseFulfilledResult<T>).value as T) : null
+
+    const userPage = val<any>(0)
+    const enabledPage = val<any>(1)
+    const orgTree = val<any>(2)
+    const rolePage = val<any>(3)
+    const resTree = val<any>(4)
+    const loginTrendPage = val<any>(5)
+    const loginFeedPage = val<any>(6)
+    const operFeedPage = val<any>(7)
+
+    // 2. 回填 KPI
+    const orgItems = orgTree?.items ?? []
+    const resItems = resTree?.items ?? []
+    kpis.value = [
+      {
+        key: 'user',
+        label: '用户',
+        value: String(userPage?.total ?? '-'),
+        hint: enabledPage ? `启用 ${enabledPage.total}` : '启用 -',
+        icon: 'user',
+        tone: '#1677ff',
+      },
+      {
+        key: 'org',
+        label: '组织',
+        value: String(orgTree ? countTreeNodes(orgItems) : '-'),
+        hint: orgTree ? rootOrgHint(orgItems) : '加载失败',
+        icon: 'peoples',
+        tone: '#13c2c2',
+      },
+      {
+        key: 'role',
+        label: '角色',
+        value: String(rolePage?.total ?? '-'),
+        hint: '含数据范围',
+        icon: 'protect',
+        tone: '#52c41a',
+      },
+      {
+        key: 'resource',
+        label: '菜单资源',
+        value: String(resTree ? countTreeNodes(resItems) : '-'),
+        hint: '目录/菜单/按钮',
+        icon: 'all-application',
+        tone: '#fa8c16',
+      },
+    ]
+
+    // 3. 趋势与动态（无审计权限时保持空/零）
+    loginTrend.value = loginTrendPage
+      ? aggregateLoginTrend(loginTrendPage.items ?? [])
+      : emptyLoginTrend()
+
+    recentLogins.value = (loginFeedPage?.items ?? []).map((row: any) => ({
+      id: String(row.id),
+      title: `${row.username || '-'} ${loginResultLabel[row.result] || row.result_name || row.result || ''}`,
+      meta: [row.ip, row.message].filter(Boolean).join(' · ') || '-',
+      time: row.created_at ? dayjs(row.created_at).format('HH:mm') : '',
+      ok: row.result === 'success' || row.result === 'logout',
+    }))
+
+    recentOpers.value = (operFeedPage?.items ?? []).map((row: any) => ({
+      id: String(row.id),
+      title: [row.module, row.action].filter(Boolean).join(' / ') || row.path || '操作',
+      meta: row.message || row.path || '-',
+      time: row.created_at ? dayjs(row.created_at).format('HH:mm') : '',
+      ok: row.result === 'success',
+    }))
+  } finally {
+    overviewLoading.value = false
+  }
+}
+
 async function loadShortcuts() {
   shortcutLoading.value = true
   try {
@@ -129,6 +291,11 @@ async function loadShortcuts() {
   } finally {
     shortcutLoading.value = false
   }
+}
+
+/** 工作台整页刷新：快捷入口 + 看板 */
+async function reloadHome() {
+  await Promise.all([loadShortcuts(), loadOverview()])
 }
 
 function resetForm() {
@@ -210,11 +377,13 @@ function go(path: string) {
   })
 }
 
-onMounted(() => {
-  loadShortcuts()
-  timer = setInterval(() => {
-    now.value = dayjs()
-  }, 30_000)
+usePageReload(async () => {
+  await reloadHome()
+  if (!timer) {
+    timer = setInterval(() => {
+      now.value = dayjs()
+    }, 30_000)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -291,7 +460,7 @@ onBeforeUnmount(() => {
         </ASpin>
       </ACard>
 
-      <section class="kpi-row">
+      <section class="kpi-row" :class="{ 'is-loading': overviewLoading }">
         <div v-for="item in kpis" :key="item.key" class="kpi-card">
           <div class="kpi-icon" :style="{ color: item.tone, background: `${item.tone}14` }">
             <MenuIcon :name="item.icon" :size="22" />
@@ -315,7 +484,7 @@ onBeforeUnmount(() => {
         <template #extra>
           <AButton type="link" size="small" @click="go('/security/login-log')">查看</AButton>
         </template>
-        <ul class="feed">
+        <ul v-if="recentLogins.length" class="feed">
           <li v-for="item in recentLogins" :key="item.id" class="feed-item">
             <span class="feed-dot" :class="item.ok ? 'ok' : 'bad'" />
             <div class="feed-body">
@@ -325,13 +494,14 @@ onBeforeUnmount(() => {
             <span class="feed-time">{{ item.time }}</span>
           </li>
         </ul>
+        <AEmpty v-else description="暂无登录记录" :image-style="{ height: '48px' }" />
       </ACard>
       <ACard variant="borderless" class="panel panel-fill" :bordered="false">
         <template #title>最近操作</template>
         <template #extra>
           <AButton type="link" size="small" @click="go('/security/oper-log')">查看</AButton>
         </template>
-        <ul class="feed">
+        <ul v-if="recentOpers.length" class="feed">
           <li v-for="item in recentOpers" :key="item.id" class="feed-item">
             <span class="feed-dot" :class="item.ok ? 'ok' : 'bad'" />
             <div class="feed-body">
@@ -341,6 +511,7 @@ onBeforeUnmount(() => {
             <span class="feed-time">{{ item.time }}</span>
           </li>
         </ul>
+        <AEmpty v-else description="暂无操作记录" :image-style="{ height: '48px' }" />
       </ACard>
     </section>
 

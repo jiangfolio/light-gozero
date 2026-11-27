@@ -1,0 +1,94 @@
+syntax = "v1"
+
+// NoticeInfo 通知公告详情。
+type NoticeInfo {
+	Id        string `json:"id"`
+	Title     string `json:"title"`
+	Content   string `json:"content"`
+	Type      string `json:"type"`
+	Status    string `json:"status"`
+	Sort      string `json:"sort"`
+	PublishAt string `json:"publish_at"`
+	Remark    string `json:"remark"`
+	CreatedBy string `json:"created_by"`
+	UpdatedBy string `json:"updated_by"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
+}
+
+type NoticeCreateReq {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Type    string `json:"type"`
+	Status  string `json:"status,optional"`
+	Sort    string `json:"sort,optional"`
+	Remark  string `json:"remark,optional"`
+}
+
+type NoticeUpdateReq {
+	Id      string `json:"id"`
+	Title   string `json:"title,optional"`
+	Content string `json:"content,optional"`
+	Type    string `json:"type,optional"`
+	Status  string `json:"status,optional"`
+	Sort    string `json:"sort,optional"`
+	Remark  string `json:"remark,optional"`
+}
+
+type NoticeDetailReq {
+	Id string `form:"id"`
+}
+
+type NoticePageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Title    string `form:"title,optional"`
+	Type     string `form:"type,optional"`
+	Status   string `form:"status,optional"`
+}
+
+type NoticePageResp {
+	Items    []NoticeInfo `json:"items"`
+	Page     string       `json:"page"`
+	PageSize string       `json:"page_size"`
+	Total    string       `json:"total"`
+}
+
+type NoticePublishedPageReq {
+	Page     string `form:"page"`
+	PageSize string `form:"page_size"`
+	Title    string `form:"title,optional"`
+	Type     string `form:"type,optional"`
+}
+
+type NoticePublishedDetailReq {
+	Id string `form:"id"`
+}
+
+@server (
+	prefix:     /api/v1
+	group:      notice
+	middleware: Auth,OperLog
+)
+service system {
+	@handler NoticeCreate
+	post /notice/create (NoticeCreateReq) returns (IdResp)
+
+	@handler NoticeUpdate
+	post /notice/update (NoticeUpdateReq)
+
+	@handler NoticeDelete
+	post /notice/delete (IdsReq)
+
+	@handler NoticeDetail
+	get /notice/detail (NoticeDetailReq) returns (NoticeInfo)
+
+	@handler NoticePage
+	get /notice/page (NoticePageReq) returns (NoticePageResp)
+
+	@handler NoticePublishedPage
+	get /notice/published_page (NoticePublishedPageReq) returns (NoticePageResp)
+
+	@handler NoticePublishedDetail
+	get /notice/published_detail (NoticePublishedDetailReq) returns (NoticeInfo)
+}

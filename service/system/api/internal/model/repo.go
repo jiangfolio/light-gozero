@@ -8,6 +8,7 @@ import (
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/audit"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/config"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/dict"
+	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/notice"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/org"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/resource"
 	"github.com/jiangbyte/light-gozero/service/system/api/internal/model/role"
@@ -25,6 +26,7 @@ type Repo struct {
 	Audit    *audit.Repo
 	Config   *config.Repo
 	Dict     *dict.Repo
+	Notice   *notice.Repo
 	Shortcut *shortcut.Repo
 }
 
@@ -38,6 +40,7 @@ func NewRepo(db *gorm.DB) *Repo {
 		Audit:    audit.NewRepo(db),
 		Config:   config.NewRepo(db),
 		Dict:     dict.NewRepo(db),
+		Notice:   notice.NewRepo(db),
 		Shortcut: shortcut.NewRepo(db),
 	}
 }

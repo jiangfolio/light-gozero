@@ -9,6 +9,8 @@ export type TabItem = {
   /** 菜单图标名，与 route.meta.icon / 侧栏 MenuIcon 一致 */
   icon?: string
   affix?: boolean
+  /** 是否纳入 keep-alive，来自 route.meta.keepAlive */
+  keepAlive?: boolean
 }
 
 /**
@@ -19,7 +21,7 @@ export const useTabsStore = defineStore('tabs', () => {
   const activePath = ref('')
 
   function openTab(tab: TabItem) {
-    // 1. 已存在则激活，并回写 title/icon；否则追加
+    // 1. 已存在则激活，并回写 title/icon/keepAlive；否则追加
     const exist = tabs.value.find((t) => t.path === tab.path)
     if (!exist) {
       tabs.value.push(tab)
@@ -27,6 +29,7 @@ export const useTabsStore = defineStore('tabs', () => {
       if (tab.title) exist.title = tab.title
       if (tab.fullPath) exist.fullPath = tab.fullPath
       if (tab.icon) exist.icon = tab.icon
+      if (tab.keepAlive !== undefined) exist.keepAlive = tab.keepAlive
     }
     activePath.value = tab.path
   }

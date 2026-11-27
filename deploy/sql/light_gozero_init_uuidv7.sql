@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS sys_oper_log;
 DROP TABLE IF EXISTS sys_login_log;
 DROP TABLE IF EXISTS sys_password_history;
 DROP TABLE IF EXISTS sys_user_shortcut;
+DROP TABLE IF EXISTS sys_notice;
 DROP TABLE IF EXISTS sys_dict;
 DROP TABLE IF EXISTS sys_config;
 DROP TABLE IF EXISTS rel_role_orgs;
@@ -163,6 +164,23 @@ CREATE TABLE sys_dict (
     KEY idx_sys_dict_code (dict_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统字典（类型与项同表）';
 
+CREATE TABLE sys_notice (
+    id         VARCHAR(36)  NOT NULL COMMENT '主键ID',
+    title      VARCHAR(200) NOT NULL DEFAULT '' COMMENT '标题',
+    content    TEXT         NOT NULL COMMENT '正文',
+    type       TINYINT      NOT NULL DEFAULT 1 COMMENT '类型：1通知 2公告',
+    status     TINYINT      NOT NULL DEFAULT 0 COMMENT '状态：0草稿 1已发布',
+    sort       INT          NOT NULL DEFAULT 0 COMMENT '排序',
+    publish_at DATETIME(3)  NULL COMMENT '发布时间',
+    remark     VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
+    created_by VARCHAR(36)  NOT NULL DEFAULT '' COMMENT '创建人ID',
+    updated_by VARCHAR(36)  NOT NULL DEFAULT '' COMMENT '更新人ID',
+    created_at DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+    updated_at DATETIME(3)  NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+    PRIMARY KEY (id),
+    KEY idx_sys_notice_status_publish (status, publish_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告';
+
 CREATE TABLE sys_user_shortcut (
     id          VARCHAR(36)  NOT NULL COMMENT '主键ID',
     user_id     VARCHAR(36)  NOT NULL COMMENT '所属用户ID',
@@ -279,6 +297,14 @@ SET @btn_dict_u = '01a20d49-091d-7001-8000-000000000015';
 SET @btn_dict_d = '01a20d49-091d-7001-8000-000000000016';
 SET @btn_dict_dt = '01a20d49-091d-7001-8000-000000000017';
 SET @btn_dict_p = '01a20d49-091d-7001-8000-000000000018';
+SET @menu_notice = '01a20d49-091d-7001-8000-000000000040';
+SET @btn_notice_c = '01a20d49-091d-7001-8000-000000000041';
+SET @btn_notice_u = '01a20d49-091d-7001-8000-000000000042';
+SET @btn_notice_d = '01a20d49-091d-7001-8000-000000000043';
+SET @btn_notice_dt = '01a20d49-091d-7001-8000-000000000044';
+SET @btn_notice_p = '01a20d49-091d-7001-8000-000000000045';
+SET @notice_welcome = '01a20d49-091d-7001-8000-000000000046';
+SET @notice_maintain = '01a20d49-091d-7001-8000-000000000047';
 SET @dict_type_user_status = '01a20d49-091d-7001-8000-000000000019';
 SET @dict_item_user_status_0 = '01a20d49-091d-7001-8000-00000000001a';
 SET @dict_item_user_status_1 = '01a20d49-091d-7001-8000-00000000001b';
@@ -313,6 +339,7 @@ VALUES
 (@menu_res, @dir_system, '资源管理', 'menu', NULL, 'resource', 'resource/index', '', 'SystemResource', 'building-one', 0, 1, 0, 4, 1, @sys, @sys),
 (@menu_config, @dir_system, '系统配置', 'menu', NULL, 'config', 'config/index', '', 'SystemConfig', 'tool', 0, 1, 0, 5, 1, @sys, @sys),
 (@menu_dict, @dir_system, '字典管理', 'menu', NULL, 'dict', 'dict/index', '', 'SystemDict', 'book-open', 0, 1, 0, 6, 1, @sys, @sys),
+(@menu_notice, @dir_system, '通知公告', 'menu', NULL, 'notice', 'notice/index', '', 'SystemNotice', 'volume-notice', 0, 1, 0, 7, 1, @sys, @sys),
 (@menu_security_config, @dir_security, '安全配置', 'menu', NULL, 'config', 'security/config/index', '', 'SecurityConfig', 'protect', 0, 1, 0, 1, 1, @sys, @sys),
 (@menu_audit_login, @dir_security, '登录日志', 'menu', NULL, 'login-log', 'audit/login/index', '', 'SecurityLoginLog', 'file-search', 0, 1, 0, 2, 1, @sys, @sys),
 (@menu_audit_oper, @dir_security, '操作日志', 'menu', NULL, 'oper-log', 'audit/oper/index', '', 'SecurityOperLog', 'file-search', 0, 1, 0, 3, 1, @sys, @sys),
@@ -355,12 +382,21 @@ VALUES
 (@btn_dict_u,  @menu_dict, '字典更新', 'button', 'system:dict:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
 (@btn_dict_d,  @menu_dict, '字典删除', 'button', 'system:dict:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),
 (@btn_dict_dt, @menu_dict, '字典详情', 'button', 'system:dict:detail', '', '', '', '', '', 1, 0, 0, 4, 1, @sys, @sys),
-(@btn_dict_p,  @menu_dict, '字典分页', 'button', 'system:dict:page', '', '', '', '', '', 1, 0, 0, 5, 1, @sys, @sys);
+(@btn_dict_p,  @menu_dict, '字典分页', 'button', 'system:dict:page', '', '', '', '', '', 1, 0, 0, 5, 1, @sys, @sys),
+(@btn_notice_c,  @menu_notice, '公告创建', 'button', 'system:notice:create', '', '', '', '', '', 1, 0, 0, 1, 1, @sys, @sys),
+(@btn_notice_u,  @menu_notice, '公告更新', 'button', 'system:notice:update', '', '', '', '', '', 1, 0, 0, 2, 1, @sys, @sys),
+(@btn_notice_d,  @menu_notice, '公告删除', 'button', 'system:notice:delete', '', '', '', '', '', 1, 0, 0, 3, 1, @sys, @sys),
+(@btn_notice_dt, @menu_notice, '公告详情', 'button', 'system:notice:detail', '', '', '', '', '', 1, 0, 0, 4, 1, @sys, @sys),
+(@btn_notice_p,  @menu_notice, '公告分页', 'button', 'system:notice:page', '', '', '', '', '', 1, 0, 0, 5, 1, @sys, @sys);
 
 INSERT INTO sys_dict (id, parent_id, dict_code, label, value, sort, status, remark, created_by, updated_by) VALUES
 (@dict_type_user_status, '', 'sys_user_status', '用户状态', '', 0, 1, '用户启用/停用', @sys, @sys),
 (@dict_item_user_status_0, @dict_type_user_status, 'sys_user_status', '停用', '0', 1, 1, '', @sys, @sys),
 (@dict_item_user_status_1, @dict_type_user_status, 'sys_user_status', '启用', '1', 2, 1, '', @sys, @sys);
+
+INSERT INTO sys_notice (id, title, content, type, status, sort, publish_at, remark, created_by, updated_by) VALUES
+(@notice_welcome, '欢迎使用 light-gozero', '本系统已内置组织、用户、角色、资源、字典、配置与通知公告等基础能力，可按业务继续扩展。', 2, 1, 1, NOW(3), '', @sys, @sys),
+(@notice_maintain, '系统维护通知', '计划于业务低峰期进行例行维护，届时可能短暂中断服务，请提前做好安排。', 1, 1, 2, NOW(3), '', @sys, @sys);
 
 INSERT INTO sys_config (id, config_key, config_value, value_type, group_name, remark, status, created_by, updated_by) VALUES
 (@cfg_token_ttl, 'auth.token_ttl_seconds', '86400', 'int', 'auth', '会话 Token 有效期（秒）', 1, @sys, @sys),

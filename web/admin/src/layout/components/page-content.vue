@@ -7,12 +7,10 @@ import { useTabsStore } from '@/stores/tabs'
 const route = useRoute()
 const tabsStore = useTabsStore()
 
+/** 仅缓存标记了 keepAlive 的已开页签，避免无缓存菜单被误缓存导致脏数据 */
 const keepAliveIncludes = computed(() => {
   return tabsStore.tabs
-    .filter((t) => {
-      // 根据当前已打开页签；真正 keepAlive 由路由 meta 决定，这里用 name
-      return Boolean(t.name)
-    })
+    .filter((t) => Boolean(t.name) && Boolean(t.keepAlive))
     .map((t) => t.name)
 })
 </script>

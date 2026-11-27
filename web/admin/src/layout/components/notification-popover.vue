@@ -1,19 +1,30 @@
 <script setup lang="ts">
 /**
- * 头部消息通知弹层：按类型分 Tab（通知/消息/待办），支持单条已读、全部已读、清空。
- * 当前为演示数据，未对接真实消息接口，接入时替换 demoData 来源并把已读/清空改为调接口即可。
+ * 头部通知弹层：通知 Tab 拉已发布公告；已读状态与个人中心共享。
+ * 消息 / 待办尚未接入后端，保持空列表。
  */
 import { Empty, message } from 'antdv-next'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+import {
+  getPublishedNoticeDetail,
+  pagePublishedNotice,
+} from '@/api/system/notice'
+import { useNoticeReadStore } from '@/stores/notice-read'
 
 const props = defineProps<{ tone?: 'light' | 'dark' }>()
 
+const router = useRouter()
+const noticeReadStore = useNoticeReadStore()
+
 const open = ref(false)
+const loading = ref(false)
 const isDark = computed(() => props.tone === 'dark')
 
 type NotifyType = 'notice' | 'message' | 'todo'
 type NotifyItem = {
-  id: number
+  id: string
   title: string
   content: string
   time: string
@@ -26,48 +37,120 @@ const tabs: { key: NotifyType; label: string }[] = [
   { key: 'todo', label: '待办' },
 ]
 
-/** 演示数据：按类型分组，待办留空以展示空占位效果 */
-const demoData = ref<Record<NotifyType, NotifyItem[]>>({
-  notice: [
-    { id: 1, title: '系统提示', content: '欢迎使用 light-gozero 管理端', time: '刚刚', read: false },
-    { id: 2, title: '安全提醒', content: '建议定期修改登录密码', time: '今天', read: false },
-  ],
-  message: [
-    { id: 3, title: '站内信', content: '演示环境消息通道未开启', time: '昨天', read: false },
-  ],
+const lists = ref<Record<NotifyType, NotifyItem[]>>({
+  notice: [],
+  message: [],
   todo: [],
 })
 
 const activeKey = ref<NotifyType>('notice')
-
-const activeList = computed(() => demoData.value[activeKey.value])
+const activeList = computed(() => lists.value[activeKey.value])
 const activeLabel = computed(() => tabs.find((t) => t.key === activeKey.value)?.label ?? '')
 const activeUnread = computed(() => unreadOf(activeKey.value))
 
-/** 未读数：Tab 标签与铃铛角标统一按未读统计 */
-const unreadOf = (key: NotifyType) => demoData.value[key].filter((i) => !i.read).length
+function unreadOf(key: NotifyType) {
+  return lists.value[key].filter((i) => !i.read).length
+}
+
 const totalUnread = computed(() => tabs.reduce((sum, t) => sum + unreadOf(t.key), 0))
 
-/** 单条标记已读 */
-function markRead(item: NotifyItem) {
-  item.read = true
+/** 拉取最近已发布公告，并用共享已读集合打标 */
+async function loadNotices() {
+  loading.value = true
+  try {
+    const resp = await pagePublishedNotice({ page: '1', page_size: '20' })
+    lists.value.notice = (resp.items ?? []).map((row: any) => ({
+      id: String(row.id),
+      title: row.title || '',
+      content: row.content || '',
+      time: row.publish_at || row.created_at || '',
+      read: noticeReadStore.isRead(String(row.id)),
+    }))
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err.message || '加载通知失败')
+  } finally {
+    loading.value = false
+  }
 }
 
-/** 当前 Tab 全部标记已读 */
+/** 已读状态在别处变更时，同步列表打标（不强制重拉接口） */
+watch(
+  () => noticeReadStore.readVersion,
+  () => {
+    lists.value.notice = lists.value.notice.map((item) => ({
+      ...item,
+      read: noticeReadStore.isRead(item.id),
+    }))
+  },
+)
+
+/** 管理端发布/删除公告后重拉，刷新角标 */
+watch(
+  () => noticeReadStore.listTick,
+  () => {
+    void loadNotices()
+  },
+)
+
+watch(open, (v) => {
+  if (v) loadNotices()
+})
+
+onMounted(() => {
+  // 进页先拉一次，铃铛角标才有未读数
+  loadNotices()
+})
+
+/** 单条已读并写入共享 store */
+function markRead(item: NotifyItem) {
+  if (item.read) return
+  item.read = true
+  noticeReadStore.markRead(item.id)
+}
+
+/** 当前 Tab 全部已读（仅通知有真实数据） */
 function markAllRead() {
-  demoData.value[activeKey.value].forEach((i) => {
+  const ids = lists.value[activeKey.value].map((i) => i.id)
+  lists.value[activeKey.value].forEach((i) => {
     i.read = true
   })
+  if (activeKey.value === 'notice') noticeReadStore.markMany(ids)
 }
 
-/** 清空当前 Tab 列表 */
+/** 清空当前 Tab 展示列表（不删服务端数据） */
 function clearCurrent() {
-  demoData.value[activeKey.value] = []
+  lists.value[activeKey.value] = []
 }
 
-/** 演示环境无消息中心页面，先给提示占位 */
+/** 跳转个人中心通知公告面板 */
 function viewAll() {
-  message.info('演示环境暂无消息中心页面')
+  open.value = false
+  router.push({ path: '/profile', query: { tab: 'notice' } })
+}
+
+const detailOpen = ref(false)
+const detailLoading = ref(false)
+const detail = ref<any>(null)
+
+const typeLabel: Record<string, string> = { '1': '通知', '2': '公告' }
+
+/** 点开条目：标记已读并拉详情 */
+async function onItemClick(item: NotifyItem) {
+  markRead(item)
+  if (activeKey.value !== 'notice') return
+  detailOpen.value = true
+  detailLoading.value = true
+  detail.value = null
+  try {
+    detail.value = await getPublishedNoticeDetail(item.id)
+  } catch (e: unknown) {
+    const err = e as { message?: string }
+    message.error(err.message || '加载详情失败')
+    detailOpen.value = false
+  } finally {
+    detailLoading.value = false
+  }
 }
 
 /** 暗色顶栏强制白色，绕过 Badge 默认文字色 */
@@ -123,13 +206,16 @@ const iconStyle = computed(() =>
         </ATabs>
 
         <div class="notify-list">
-          <template v-if="activeList.length">
+          <div v-if="loading && activeKey === 'notice'" class="notify-loading">
+            <ASpin size="small" />
+          </div>
+          <template v-else-if="activeList.length">
             <div
               v-for="m in activeList"
               :key="m.id"
               class="notify-item"
               :class="{ 'is-read': m.read }"
-              @click="markRead(m)"
+              @click="onItemClick(m)"
             >
               <div class="notify-item-title">
                 <span v-if="!m.read" class="notify-dot" />
@@ -142,12 +228,12 @@ const iconStyle = computed(() =>
           <AEmpty
             v-else
             :image="Empty.PRESENTED_IMAGE_SIMPLE"
-            :description="`暂无${activeLabel}`"
+            :description="
+              activeKey === 'notice' ? `暂无${activeLabel}` : `${activeLabel}暂未接入`
+            "
             class="notify-empty"
           />
         </div>
-
-        <div class="notify-tip">演示数据，未对接真实消息接口</div>
       </div>
     </template>
     <button
@@ -163,6 +249,25 @@ const iconStyle = computed(() =>
       </ABadge>
     </button>
   </APopover>
+
+  <AModal
+    v-model:open="detailOpen"
+    title="通知公告详情"
+    :footer="null"
+    destroy-on-close
+    width="640px"
+  >
+    <ASpin :spinning="detailLoading">
+      <template v-if="detail">
+        <div class="detail-title">{{ detail.title }}</div>
+        <div class="detail-meta">
+          <span>{{ typeLabel[detail.type] || detail.type }}</span>
+          <span v-if="detail.publish_at">{{ detail.publish_at }}</span>
+        </div>
+        <div class="detail-content">{{ detail.content }}</div>
+      </template>
+    </ASpin>
+  </AModal>
 </template>
 
 <style scoped lang="less">
@@ -175,7 +280,6 @@ const iconStyle = computed(() =>
     margin-bottom: 0;
   }
 
-  /* Tab 左对齐，右侧留出操作按钮空间 */
   :deep(.ant-tabs-extra-content) {
     line-height: 1;
   }
@@ -225,6 +329,12 @@ const iconStyle = computed(() =>
   overflow-y: auto;
 }
 
+.notify-loading {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
 .notify-item {
   padding: 8px 4px;
   cursor: pointer;
@@ -260,8 +370,11 @@ const iconStyle = computed(() =>
 
 .notify-item-content {
   margin-top: 2px;
+  overflow: hidden;
   font-size: 12px;
   color: #666;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .notify-item-time {
@@ -274,13 +387,6 @@ const iconStyle = computed(() =>
   margin: 24px 0;
 }
 
-.notify-tip {
-  padding: 4px 0 0;
-  font-size: 12px;
-  color: #ccc;
-  text-align: center;
-}
-
 .notify-trigger {
   display: inline-flex;
   width: 36px;
@@ -289,7 +395,6 @@ const iconStyle = computed(() =>
   align-items: center;
   justify-content: center;
   border: 0;
-  /* 跟随主题圆角，与头部其他 hover 底统一 */
   border-radius: var(--app-border-radius, 0px);
   background: transparent;
   padding: 0;
@@ -311,7 +416,6 @@ const iconStyle = computed(() =>
 }
 
 .notify-badge {
-  /* Badge 默认会把子节点文字色打成正文黑，强制跟随 wrap 颜色 */
   :deep(.ant-badge) {
     color: inherit;
   }
@@ -321,5 +425,26 @@ const iconStyle = computed(() =>
     stroke: currentColor !important;
     fill: none !important;
   }
+}
+
+.detail-title {
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e1e1e;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.detail-content {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: #334155;
 }
 </style>

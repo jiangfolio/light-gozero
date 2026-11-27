@@ -55,6 +55,12 @@ const (
 	SystemDictDelete = "system:dict:delete"
 	SystemDictDetail = "system:dict:detail"
 	SystemDictPage   = "system:dict:page"
+
+	SystemNoticeCreate = "system:notice:create"
+	SystemNoticeUpdate = "system:notice:update"
+	SystemNoticeDelete = "system:notice:delete"
+	SystemNoticeDetail = "system:notice:detail"
+	SystemNoticePage   = "system:notice:page"
 )
 
 // Valid 校验权限码格式。

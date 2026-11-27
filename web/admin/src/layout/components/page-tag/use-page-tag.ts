@@ -28,6 +28,7 @@ export function usePageTag() {
         title: String(route.meta.title || route.name),
         icon: route.meta.icon ? String(route.meta.icon) : undefined,
         affix: Boolean(route.meta.affix),
+        keepAlive: Boolean(route.meta.keepAlive),
       })
     },
     { immediate: true },

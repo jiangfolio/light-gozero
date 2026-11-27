@@ -10,6 +10,7 @@ import (
 	auth "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/auth"
 	config "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/config"
 	dict "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/dict"
+	notice "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/notice"
 	org "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/org"
 	resource "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/resource"
 	role "github.com/jiangbyte/light-gozero/service/system/api/internal/handler/role"
@@ -202,6 +203,50 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/dict/type/update",
 					Handler: dict.DictTypeUpdateHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithPrefix("/api/v1"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.Auth, serverCtx.OperLog},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/notice/create",
+					Handler: notice.NoticeCreateHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/notice/delete",
+					Handler: notice.NoticeDeleteHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/notice/detail",
+					Handler: notice.NoticeDetailHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/notice/page",
+					Handler: notice.NoticePageHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/notice/published_detail",
+					Handler: notice.NoticePublishedDetailHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/notice/published_page",
+					Handler: notice.NoticePublishedPageHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/notice/update",
+					Handler: notice.NoticeUpdateHandler(serverCtx),
 				},
 			}...,
 		),
